@@ -4,6 +4,7 @@ import test from "../images/download.jpeg";
 import { ChatState } from "../Context/ChatProvider";
 
 import axios from "axios";
+const url = "https://tournamax-testing.onrender.com";
 
 function Poster() {
   const [title, setTitle] = useState(null);
@@ -36,7 +37,7 @@ function Poster() {
     };
 
     try {
-      const res = await axios.post("/api/poster", newPoster);
+      const res = await axios.post(url + "/api/poster", newPoster);
       setPoster([...poster, res.data]);
     } catch (err) {
       console.log(err);
