@@ -32,12 +32,21 @@ function Poster() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    const newPoster = {
-      input: title,
-    };
 
     try {
-      const res = await axios.post(url + "/api/poster", newPoster);
+      const config = {
+        headers: {
+          "Access-Control-Allow-Credentials": true,
+        },
+      };
+
+      const res = await axios.post(
+        url + "/api/poster",
+        {
+          input: title,
+        },
+        config
+      );
       setPoster([...poster, res.data]);
     } catch (err) {
       console.log(err);
