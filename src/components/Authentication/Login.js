@@ -88,28 +88,34 @@ const Login = ({ setonClick1 }) => {
       setLoading(false);
     }
   };
+
   const google = () => {
     window.open("http://localhost:5000/auth/google", "_self");
 
-    // fetch("http://localhost:5000/auth/login/success", {
-    //   method: "GET",
-    //   credentials: "include",
-    //   headers: {
-    //     Accept: "application/json",
-    //     "Content-Type": "application/json",
-    //     "Access-Control-Allow-Credentials": true,
-    //   },
-    // })
-    //   .then((response) => {
-    //     if (response.status === 200) return response.json();
-    //     throw new Error("authentication has been failed!");
-    //   })
-    //   .then((resObject) => {
-    //     setUser(resObject.user);
-    //   })
-    //   .catch((err) => {
-    //     console.log(err);
-    //   });
+    fetch("http://localhost:5000/auth/login/success", {
+      method: "GET",
+      credentials: "include",
+      headers: {
+        Accept: "application/json",
+        "Content-Type": "application/json",
+        "Access-Control-Allow-Credentials": true,
+      },
+    })
+      .then((response) => {
+        if (response.status === 200) return response.json();
+        throw new Error("authentication has been failed!");
+      })
+      .then((resObject) => {
+        const userInfo = localStorage.setItem(
+          "userInfo",
+          JSON.stringify(resObject.user)
+        );
+
+        setUser(userInfo);
+      })
+      .catch((err) => {
+        console.log(err);
+      });
   };
 
   return (
@@ -154,7 +160,7 @@ const Login = ({ setonClick1 }) => {
         Login
       </Button>
 
-      {/* <Button
+      <Button
         w={"full"}
         maxW={"md"}
         colorScheme="blue"
@@ -165,7 +171,7 @@ const Login = ({ setonClick1 }) => {
         <Center>
           <Text>Sign in with Google</Text>
         </Center>
-      </Button> */}
+      </Button>
     </VStack>
   );
 };

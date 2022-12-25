@@ -1,78 +1,99 @@
-import { Image } from "@chakra-ui/react";
 import {
-  GlobeAltIcon,
-  MenuIcon,
-  UserCircleIcon,
-  UsersIcon,
-  SearchIcon,
-} from "@heroicons/react/solid";
-import { useState } from "react";
+  Modal,
+  ModalOverlay,
+  ModalContent,
+  ModalBody,
+  useToast,
+  ModalCloseButton,
+  Button,
+  useDisclosure,
+} from "@chakra-ui/react";
+import {
+  Menu,
+  MenuButton,
+  MenuList,
+  Avatar,
+  MenuItem,
+  MenuDivider,
+} from "@chakra-ui/react";
+import { ChatState } from "../Context/ChatProvider";
+import Homepage from "../pages/HomePage";
+import ProfileModal from "../components/miscellaneous/ProfileModal";
+import { ChevronDownIcon } from "@chakra-ui/icons";
 
 function Header({ placeholder }) {
-  // STATE FOR REACT
-  const [searchInput, setSearchInput] = useState("");
-  const [startDate, setStartDate] = useState(new Date());
-  const [endDate, setEndDate] = useState(new Date()); //need to fix to tomorrow's date
-  const [numberOfGuests, setNumberOfGuests] = useState(1);
+  const myStorage = window.localStorage;
 
-  const handleSelect = (ranges) => {
-    setStartDate(ranges.selection.startDate);
-    setEndDate(ranges.selection.endDate);
+  const { user, setUser } = ChatState();
+
+  const { isOpen, onOpen, onClose } = useDisclosure();
+
+  const logoutHandler = () => {
+    setUser(null);
+    myStorage.removeItem("userInfo");
   };
-
-  const resetInput = () => {
-    setSearchInput("");
-  };
-
-  const selectionRange = {
-    startDate: startDate,
-    endDate: endDate,
-    key: "selection",
-  };
-
   return (
-    // <header
-    //   className="sticky top-0 z-50 grid grid-cols-3 bg-white
-    // shadow-md p-5 md:px-10"
-    // >
-    //   <div className="relative my-auto flex h-10 cursor-pointer items-center">
-    //     <Image
-    //       src="https://i.postimg.cc/ydyhjmC0/185785168-d82eb824-a402-4df3-912d-8787f46ba048.png"
-    //       boxSize="150px"
-    //       objectFit="contain"
-    //       objectPosition="left"
-    //     />
-    //   </div>
-
-    //   {/* Right */}
-    //   <div className="flex items-center space-x-4 justify-end text-gray-500">
-    //     <p className="hidden md:inline cursor-pointer">Become a host</p>
-    //     <GlobeAltIcon className="h-6" />
-    //     <div className="flex items-center space-x-2 border-2 p-2 rounded-full">
-    //       <MenuIcon className="h-6" />
-    //       <UserCircleIcon className="h-6" />
-    //     </div>
-    //   </div>
-    // </header>
-
-    <div class="bg-white">
-      <div class="border py-3 px-6">
-        <div class="flex justify-between">
-          <div class="flex items-center cursor-pointer">
-            <Image
-              src="https://i.postimg.cc/ydyhjmC0/185785168-d82eb824-a402-4df3-912d-8787f46ba048.png"
-              boxSize="20px"
-              objectFit="contain"
-              objectPosition="left"
-            />
-          </div>
-
-          <div class="ml-2 flex cursor-pointer items-center gap-x-1 rounded-md border py-2 px-4 hover:bg-gray-100">
-            <span class="text-sm font-medium">Sign in</span>
-          </div>
+    <>
+      <div class="header">
+        <a href="#default" class="logo">
+          CompanyLogo
+        </a>
+        <div class="header-right">
+          <a class="active" href="#home">
+            Home
+          </a>
+          <ul class="flex flex-col border border-gray-100 rounded-lg bg-gray-50 md:flex-row md:space-x-8 md:mt-0 md:text-sm md:font-medium md:border-0 md:bg-white dark:bg-gray-800 md:dark:bg-gray-900 dark:border-gray-700">
+            {user ? (
+              <Menu>
+                <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+                  <Avatar
+                    size={"sm"}
+                    cursor="pointer"
+                    name={user.name}
+                    src={user.pic}
+                  />
+                </MenuButton>
+                <MenuList>
+                  <ProfileModal user={user}>
+                    <MenuItem>My Profile</MenuItem>
+                  </ProfileModal>
+                  <MenuDivider />
+                  <MenuItem onClick={logoutHandler}>Logout</MenuItem>
+                </MenuList>
+              </Menu>
+            ) : (
+              <div>
+                <button
+                  type="button"
+                  onClick={onOpen}
+                  class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 text-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  Login
+                </button>
+                <button
+                  type="button"
+                  onClick={onOpen}
+                  class="text-white bg-blue-700 hover:bg-blue-800 focus:outline-none focus:ring-4 focus:ring-blue-300 font-medium rounded-full text-sm px-5 text-center mr-2 dark:bg-blue-600 dark:hover:bg-blue-700 dark:focus:ring-blue-800"
+                >
+                  Register
+                </button>
+              </div>
+            )}
+            <>
+              <Modal isOpen={isOpen} onClose={onClose}>
+                <ModalOverlay />
+                <ModalContent>
+                  <ModalCloseButton />
+                  <ModalBody>
+                    <Homepage setonClick={onClose} />
+                  </ModalBody>
+                </ModalContent>
+              </Modal>
+            </>
+          </ul>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 export default Header;

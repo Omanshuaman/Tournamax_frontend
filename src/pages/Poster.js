@@ -1,10 +1,12 @@
 import React from "react";
-import { useEffect, useState } from "react";
+import "mapbox-gl/dist/mapbox-gl.css";
+
+import { useEffect, useState, useRef } from "react";
 import test from "../images/download.jpeg";
 import { ChatState } from "../Context/ChatProvider";
 
 import axios from "axios";
-const url = "https://tournamax-testing.onrender.com";
+// const url = "https://tournamax-testing.onrender.com";  //for production
 
 function Poster() {
   const [title, setTitle] = useState(null);
@@ -17,8 +19,11 @@ function Poster() {
     const base_image = document.getElementById("scream");
     base_image.onload = function () {
       context.drawImage(base_image, 0, 0);
-      context.font = "30px Arial";
-      context.fillText("Hello World", 10, 50);
+
+      context.font = "20px Arial";
+      const textWidth = context.measureText("Hello World").width;
+
+      context.fillText("Hello Worlddddddddddd", 10, 60, textWidth);
     };
   }, []);
 
@@ -41,7 +46,8 @@ function Poster() {
       };
 
       const res = await axios.post(
-        url + "/api/poster",
+        //url +
+        "/api/poster",
         {
           input: title,
         },
@@ -53,6 +59,13 @@ function Poster() {
     }
   };
 
+  function openNav() {
+    document.getElementById("mySidenav").style.width = "250px";
+  }
+
+  function closeNav() {
+    document.getElementById("mySidenav").style.width = "0";
+  }
   return (
     <div>
       <p>Image to use:</p>
