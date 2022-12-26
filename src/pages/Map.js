@@ -1,4 +1,5 @@
 import "mapbox-gl/dist/mapbox-gl.css";
+
 import "swiper/swiper.min.css";
 import Homepage from "./HomePage";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
@@ -53,12 +54,17 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import "swiper/css";
 import "swiper/css/navigation";
 
+// import required modules
+import { Navigation } from "swiper";
+
 import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
 
 // eslint-disable-next-line import/no-webpack-loader-syntax
 import MapboxWorker from "worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker";
-// import required modules
-import { Navigation } from "swiper";
+/* eslint-disable import/no-webpack-loader-syntax */
+// @ts-ignore
+mapboxgl.workerClass =
+  require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 function Map() {
   const myStorage = window.localStorage;
   const mapRef = React.useRef();
