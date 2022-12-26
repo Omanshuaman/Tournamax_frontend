@@ -36,7 +36,8 @@
     "react-window": "^1.8.8",
     "styled-components": "^5.3.6",
     "swiper": "^8.4.5",
-    "web-vitals": "^2.1.4"
+    "web-vitals": "^2.1.4",
+    "worker-loader": "^3.0.8"
   },
   "scripts": {
     "start": "react-scripts start",
