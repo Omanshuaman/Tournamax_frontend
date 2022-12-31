@@ -2,7 +2,6 @@ import React from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
 
 import { useEffect, useState, useRef } from "react";
-import test from "../images/download.jpeg";
 import { ChatState } from "../Context/ChatProvider";
 
 import axios from "axios";
@@ -69,7 +68,13 @@ function Poster() {
   return (
     <div>
       <p>Image to use:</p>
-      <img id="scream" width={220} height={277} src={test} alt="The Scream" />
+      <img
+        id="scream"
+        width={220}
+        height={277}
+        src="https://cdn.pixabay.com/photo/2016/03/21/23/25/link-1271843__480.png"
+        alt="The Scream"
+      />
       <p>Canvas:</p>
       <canvas
         id="myCanvas"

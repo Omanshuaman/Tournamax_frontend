@@ -9,8 +9,7 @@ import ProfileModal from "../components/miscellaneous/ProfileModal";
 import axios from "axios";
 import Header from "../components/Header";
 import * as React from "react";
-import test from "../images/download.jpeg";
-import test1 from "../images/Screenshot 2022-11-05 200942.png";
+
 import { Pagination } from "swiper";
 import {
   Drawer,
@@ -59,22 +58,19 @@ import { Navigation } from "swiper";
 
 import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
 
-// eslint-disable-next-line import/no-webpack-loader-syntax
-import MapboxWorker from "worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker";
 /* eslint-disable import/no-webpack-loader-syntax */
 // @ts-ignore
 mapboxgl.workerClass =
   require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
+
 function Map() {
   const myStorage = window.localStorage;
   const mapRef = React.useRef();
   const ref = useRef(null);
-
   const { user, setUser } = ChatState();
   const [selectedOption, setSelectedOption] = useState(null);
   const [tournamentname, setTournamentName] = useState(null);
   const [title, setTitle] = useState(null);
-
   const [pins, setPins] = useState([]);
   const [currentPlaceId, setCurrentPlaceId] = useState(null);
   const [newPlace, setNewPlace] = useState(null);
@@ -174,7 +170,7 @@ function Map() {
     };
 
     try {
-      const res = await axios.post("api/pins", newPin);
+      const res = await axiosInstance.post("/pins", newPin);
       setPins([...pins, res.data]);
       setNewPlace(null);
     } catch (err) {
@@ -276,7 +272,10 @@ function Map() {
                 <SwiperSlide key={index} onClick={() => openNav3(p._id)}>
                   {({ isActive }) => (
                     <>
-                      <img align="left" src={test1}></img>
+                      <img
+                        align="left"
+                        src="https://cdn.pixabay.com/photo/2016/03/21/23/25/link-1271843__480.png"
+                      ></img>
                       <div class="grid grid-cols-12 gap-3 min-h-full">
                         <div class="col-start-1 col-end-6 ml-3 sm:ml-7">
                           <div class=" mt-6 ">Football</div>
@@ -435,7 +434,7 @@ function Map() {
                 </a>
 
                 <img
-                  src={test1}
+                  src="https://cdn.pixabay.com/photo/2016/03/21/23/25/link-1271843__480.png"
                   class="w-fit rounded-lg"
                   onClick={onPhotoOpen}
                 ></img>
@@ -454,7 +453,7 @@ function Map() {
             <ModalContent>
               <ModalCloseButton />
               <ModalBody>
-                <img src={test1}></img>
+                <img src="https://cdn.pixabay.com/photo/2016/03/21/23/25/link-1271843__480.png"></img>
               </ModalBody>
             </ModalContent>
           </Modal>

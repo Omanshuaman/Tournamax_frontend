@@ -25,6 +25,9 @@ const Login = ({ setonClick1 }) => {
   const [loading, setLoading] = useState(false);
   const toast = useToast();
   const history = useHistory();
+  const axiosInstance = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+  });
 
   const handleClick = () => {
     setShow(!show);
@@ -51,8 +54,8 @@ const Login = ({ setonClick1 }) => {
         },
       };
 
-      const { data } = await axios.post(
-        "/api/user/login",
+      const { data } = await axiosInstance.post(
+        "/user/login",
         {
           email,
           password,
