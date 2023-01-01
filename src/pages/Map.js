@@ -9,7 +9,12 @@ import ProfileModal from "../components/miscellaneous/ProfileModal";
 import axios from "axios";
 import Header from "../components/Header";
 import * as React from "react";
-
+import {
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
+} from "@chakra-ui/react";
 import { Pagination } from "swiper";
 import {
   Drawer,
@@ -252,29 +257,50 @@ function Map() {
         mapboxAccessToken={process.env.REACT_APP_MAPBOX}
         style={{
           width: "100%",
-          height: "94vh",
+          height: "100vh",
         }}
         {...viewport}
         onMove={(evt) => setViewport(evt.viewport)}
         mapStyle="mapbox://styles/safak/cknndpyfq268f17p53nmpwira"
       >
         <>
+          <Alert status="warning">
+            <AlertIcon />
+            <p>
+              Website currently in development stage. Wait till mid january to
+              get stable.
+            </p>
+          </Alert>
+        </>
+        <>
           <Swiper
             ref={ref}
-            slidesPerView={1.3}
-            spaceBetween={35}
+            slidesPerView={1.2}
+            spaceBetween={20}
+            breakpoints={{
+              // when window width is >= 640px
+              640: {
+                width: 640,
+                slidesPerView: 1.3,
+                spaceBetween: 35,
+              },
+            }}
             centeredSlides={true}
             className="mySwiper"
           >
             {markers.map((p, index) => (
               <>
                 {" "}
-                <SwiperSlide key={index} onClick={() => openNav3(p._id)}>
+                <SwiperSlide
+                  key={index}
+                  // onClick={() => openNav3(p._id)}
+                  onClick={onDrawerOpen}
+                >
                   {({ isActive }) => (
                     <>
                       <img
                         align="left"
-                        src="https://cdn.pixabay.com/photo/2016/03/21/23/25/link-1271843__480.png"
+                        src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"
                       ></img>
                       <div class="grid grid-cols-12 gap-3 min-h-full">
                         <div class="col-start-1 col-end-6 ml-3 sm:ml-7">
@@ -434,7 +460,7 @@ function Map() {
                 </a>
 
                 <img
-                  src="https://cdn.pixabay.com/photo/2016/03/21/23/25/link-1271843__480.png"
+                  src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"
                   class="w-fit rounded-lg"
                   onClick={onPhotoOpen}
                 ></img>
@@ -453,16 +479,13 @@ function Map() {
             <ModalContent>
               <ModalCloseButton />
               <ModalBody>
-                <img src="https://cdn.pixabay.com/photo/2016/03/21/23/25/link-1271843__480.png"></img>
+                <img src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"></img>
               </ModalBody>
             </ModalContent>
           </Modal>
         </>
 
         <>
-          <Button ref={btnRef} colorScheme="teal" onClick={onDrawerOpen}>
-            Open
-          </Button>
           <Drawer
             isOpen={isDrawerOpen}
             placement="right"
@@ -472,18 +495,6 @@ function Map() {
             <DrawerOverlay />
             <DrawerContent>
               <DrawerCloseButton />
-              <DrawerHeader>Create your account</DrawerHeader>
-
-              <DrawerBody>
-                <Input placeholder="Type here..." />
-              </DrawerBody>
-
-              <DrawerFooter>
-                <Button variant="outline" mr={3} onClick={onDrawerClose}>
-                  Cancel
-                </Button>
-                <Button colorScheme="blue">Save</Button>
-              </DrawerFooter>
             </DrawerContent>
           </Drawer>
         </>
