@@ -286,7 +286,7 @@ function Map() {
               },
             }}
             centeredSlides={true}
-            className="mySwiper"
+            className="mySwiper bottom-element"
           >
             {markers.map((p, index) => (
               <>
@@ -398,7 +398,8 @@ function Map() {
                   <div class="flex justify-center">
                     <button
                       className="text-purple-500 bg-white px-10 py-4 shadow-md rounded-full font-bold my-3 hover:shadow-xl w-3/4"
-                      onClick={openNav}
+                      //     onClick={openNav}
+                      onClick={() => history.push("/organize")}
                     >
                       ORGANIZE YOUR TOURNAMENT
                     </button>
@@ -407,7 +408,7 @@ function Map() {
               ) : (
                 <div class="flex justify-center">
                   <button
-                    className="text-purple-500 bg-white px-10 py-4 shadow-md rounded-full font-bold my-3 hover:shadow-xl w-3/4"
+                    className="text-purple-500 bg-white px-10 py-4 shadow-lg rounded-full font-bold my-3 hover:shadow-xl w-3/4"
                     onClick={onLoginOpen}
                   >
                     ORGANIZE YOUR TOURNAMENT

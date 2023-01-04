@@ -101,6 +101,9 @@ function Poster() {
           </button>
         </form>
       </div>
+      <div>
+        <button>Hello</button>
+      </div>
     </div>
   );
 }
