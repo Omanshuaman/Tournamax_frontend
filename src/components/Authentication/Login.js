@@ -94,7 +94,7 @@ const Login = ({ setonClick1 }) => {
   const google = async () => {
     //const popup = window.open("http://localhost:5000/auth/google", "_self");
     const popup = window.open(
-      "https://tournamaxsports.com/auth/google",
+      "https://tournamaxsports.com/api/auth/google",
       "_blank",
       "height=400,width=450"
     );
@@ -103,7 +103,7 @@ const Login = ({ setonClick1 }) => {
         // your code here will run once the popup window has finished loading
         try {
           const response = await fetch(
-            "https://tournamaxsports.com/auth/login/success",
+            "https://tournamaxsports.com/api/auth/login/success",
             {
               method: "GET",
               headers: {
