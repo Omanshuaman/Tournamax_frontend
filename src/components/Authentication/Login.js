@@ -92,7 +92,6 @@ const Login = ({ setonClick1 }) => {
   };
 
   const google = async () => {
-    //const popup = window.open("http://localhost:5000/auth/google", "_self");
     const popup = window.open(
       "https://tournamaxsports.com/api/auth/google",
       "_blank",
@@ -124,39 +123,7 @@ const Login = ({ setonClick1 }) => {
       };
     }
   };
-  // const google = async () => {
-  //   //const popup = window.open("http://localhost:5000/auth/google", "_self");
-  //   const popup = window.open(
-  //     "https://tournamaxsports.com/auth/google",
-  //     "_blank",
-  //     "height=400,width=450"
-  //   );
-  //   if (popup) {
-  //     popup.onload = async function () {
-  //       // your code here will run once the popup window has finished loading
-  //       try {
-  //         const response = await fetch(
-  //           "https://tournamaxsports.com/auth/login/success",
-  //           {
-  //             method: "GET",
-  //             headers: {
-  //               "Content-Type": "application/json",
-  //               Accept: "application/json",
-  //             },
-  //             credentials: "include",
-  //           }
-  //         );
-  //         const user = await response.json();
-  //         localStorage.setItem("userInfo", JSON.stringify(user.user));
-  //         setUser(user);
-  //         console.log(user);
-  //       } catch (error) {
-  //         console.log("Failed to get user information", error);
-  //       }
-  //       popup.close();
-  //     };
-  //   }
-  // };
+
   return (
     <VStack spacing={"5px"}>
       <FormControl id="email" isRequired>

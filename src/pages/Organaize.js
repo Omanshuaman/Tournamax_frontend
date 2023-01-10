@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from "react";
-
+import { useHistory } from "react-router-dom";
 function Organaize() {
   const [selectedOption, setSelectedOption] = useState(null);
-
+  const history = useHistory();
   useEffect(() => {
     const optionMenu = document.querySelector(".select-menu"),
       selectBtn = optionMenu.querySelector(".select-btn"),
@@ -30,6 +30,7 @@ function Organaize() {
     } else if (selectedOption === "Football") {
       //  block of code to be executed if the condition1 is false and condition2 is true
       console.log("Football");
+      history.push("/Football");
     } else {
       //  block of code to be executed if the condition1 is false and condition2 is false
       console.log("dc");
