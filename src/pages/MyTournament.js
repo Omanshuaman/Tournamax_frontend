@@ -124,7 +124,7 @@ const MyTournament = () => {
         },
       };
 
-      const { data } = await axiosInstance.get("/api/pins/organize", config);
+      const { data } = await axiosInstance.get("/pins/organize", config);
 
       setOrganized(data);
     } catch (error) {}
@@ -138,7 +138,7 @@ const MyTournament = () => {
         },
       };
 
-      const { data } = await axiosInstance.get("/api/pins/participate", config);
+      const { data } = await axiosInstance.get("/pins/participate", config);
       setParticipated(data);
     } catch (error) {}
   };

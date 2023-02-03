@@ -61,7 +61,7 @@ const Edit = (props) => {
     const getPins = async () => {
       try {
         const allPins = await axiosInstance.get(
-          `/api/edittournament/${props.location.state.props}`
+          `/edittournament/${props.location.state.props}`
         );
         setPins(allPins.data);
       } catch (err) {
@@ -73,7 +73,7 @@ const Edit = (props) => {
 
   const handleRenameTournament = async () => {
     try {
-      const { data } = await axiosInstance.put(`/api/edit/renametournament`, {
+      const { data } = await axiosInstance.put(`/edit/renametournament`, {
         chatId: props.location.state.props,
         chatName: value,
         nameUser: organizerName,

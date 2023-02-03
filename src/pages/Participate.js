@@ -34,7 +34,7 @@ function Participate(props) {
     };
 
     try {
-      const res = await axiosInstance.post("/api/join", newPin);
+      const res = await axiosInstance.post("/join", newPin);
       history.push("/");
     } catch (err) {
       console.log(err);

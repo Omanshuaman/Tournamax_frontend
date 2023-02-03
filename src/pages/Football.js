@@ -90,7 +90,7 @@ function FootballOrganize() {
     };
 
     try {
-      const res = await axiosInstance.post("/api/pins", newPin);
+      const res = await axiosInstance.post("/pins", newPin);
       setPins([...pins, res.data]);
       history.push("/");
     } catch (err) {

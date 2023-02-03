@@ -253,7 +253,7 @@ function Map() {
   useEffect(() => {
     const getPins = async () => {
       try {
-        const allPins = await axiosInstance.get("/api/pins");
+        const allPins = await axiosInstance.get("/pins");
         setPins(allPins.data);
       } catch (err) {
         console.log(err);
@@ -287,7 +287,7 @@ function Map() {
 
   const handleRename = async () => {
     try {
-      const { data } = await axiosInstance.put(`/api/edit/rename`, {
+      const { data } = await axiosInstance.put(`/edit/rename`, {
         chatId: currentSlideId,
         chatName: pic,
       });
@@ -306,7 +306,7 @@ function Map() {
   };
   const handleRenameGroupLink = async () => {
     try {
-      const { data } = await axiosInstance.put(`/api/edit/renamegroup`, {
+      const { data } = await axiosInstance.put(`/edit/renamegroup`, {
         chatId: currentSlideId,
         chatName: currentSlideId,
       });

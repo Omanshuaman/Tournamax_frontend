@@ -14,7 +14,7 @@ const ParticipateRecord = (props) => {
     const getPins = async () => {
       try {
         const allPins = await axiosInstance.get(
-          `/api/pins/${props.location.state.props}`,
+          `/pins/${props.location.state.props}`,
           {
             headers: {
               Authorization: `Bearer ${user.token}`,
