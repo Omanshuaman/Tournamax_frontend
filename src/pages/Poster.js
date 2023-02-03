@@ -1,30 +1,26 @@
 import React from "react";
 import "mapbox-gl/dist/mapbox-gl.css";
+
 import { useEffect, useState, useRef } from "react";
 import { ChatState } from "../Context/ChatProvider";
 
 import axios from "axios";
 
 function Poster(props) {
-  const [DarkMode, setDarkMode] = useState(null);
-
   useEffect(() => {
     var canvas = document.getElementById("myCanvas"),
       context = canvas.getContext("2d");
+
     const base_image = document.getElementById("scream");
     base_image.onload = function () {
       context.drawImage(base_image, 0, 0);
-      if (DarkMode === "1") {
-      } else {
-        context.fillStyle = "red";
-      }
 
       context.font = "20px Arial";
       const textWidth = context.measureText("Hello World").width;
 
       context.fillText("Hello Worlddddddddddd", 10, 60, textWidth);
     };
-  }, [DarkMode]);
+  }, []);
 
   var download = function () {
     var link = document.createElement("a");
@@ -32,10 +28,7 @@ function Poster(props) {
     link.href = document.getElementById("myCanvas").toDataURL();
     link.click();
   };
-  var darkmode = function () {
-    setDarkMode("1");
-    console.log(DarkMode);
-  };
+
   return (
     <div>
       <p>Image to use:</p>
@@ -63,4 +56,5 @@ function Poster(props) {
     </div>
   );
 }
+
 export default Poster;

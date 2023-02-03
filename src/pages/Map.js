@@ -1,5 +1,4 @@
 import "mapbox-gl/dist/mapbox-gl.css";
-
 import "swiper/swiper.min.css";
 import Homepage from "./HomePage";
 import ReactMapGL, { Marker, Popup } from "react-map-gl";
@@ -15,6 +14,8 @@ import {
   AlertTitle,
   AlertDescription,
 } from "@chakra-ui/react";
+import Cookies from "js-cookie";
+
 import {
   Button,
   FormControl,
@@ -30,6 +31,7 @@ import {
   Drawer,
   DrawerBody,
   DrawerFooter,
+  Image,
   DrawerHeader,
   DrawerOverlay,
   DrawerContent,
@@ -45,10 +47,15 @@ import {
   useDisclosure,
   ModalHeader,
   ModalFooter,
+  Stack,
+  Box,
+  Textarea,
+  InputLeftAddon,
+  firstField,
+  InputRightAddon,
   List,
   Select,
 } from "@chakra-ui/react";
-
 import { ChevronDownIcon } from "@chakra-ui/icons";
 import {
   Menu,
@@ -61,16 +68,12 @@ import {
 import { ChatState } from "../Context/ChatProvider";
 import { useHistory } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
-
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
-
 // import required modules
 import { Navigation } from "swiper";
-
 import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
-
 /* eslint-disable import/no-webpack-loader-syntax */
 // @ts-ignore
 mapboxgl.workerClass =
@@ -81,19 +84,36 @@ function Map() {
   const mapRef = React.useRef();
   const ref = useRef(null);
   const { user, setUser } = ChatState();
+  const [show, setShow] = useState(false);
+  const [password, setPassword] = useState();
+
   const [selectedOption, setSelectedOption] = useState(null);
   const [tournamentname, setTournamentName] = useState(null);
   const [title, setTitle] = useState(null);
   const [pins, setPins] = useState([]);
   const [currentPlaceId, setCurrentPlaceId] = useState(null);
   const [newPlace, setNewPlace] = useState(null);
+
+  const [organizerName, setOrganizerName] = useState(null);
+  const [noofTeam, setNoofTeam] = useState(null);
+  const [address, setAddress] = useState(null);
+  const [startMatchDate, setStartMatchDate] = useState([]);
+  const [endMatchDate, setEndMatchDate] = useState(null);
+  const [time, setTime] = useState(null);
+  const [entryFee, setEntryFee] = useState([]);
+  const [prizeMoney, setPrizeMoney] = useState(null);
+  const [createdBy, setCreatedBy] = useState(null);
+  const [sports, setSports] = useState(null);
+
   const [currentCardId, setCurrentCard] = useState(null);
+  const [currentCardDesc, setCurrentCardDesc] = useState(null);
+  const [currentCardUsername, setCurrentCardUsername] = useState(null);
+
   const [markers, setMarkers] = useState([]);
   const [currentSlide, setCurrentSlide] = useState([]);
   const [currentSlideId, setCurrentSlideId] = useState([]);
   const [longitude, setLongitude] = useState(null);
   const [latitude, setLatitude] = useState(null);
-
   const [loading, setLoading] = useState(false);
   const toast = useToast();
   const [pic, setPic] = useState();
@@ -102,26 +122,14 @@ function Map() {
   });
 
   const history = useHistory();
-
+  const handleClick = () => {
+    setShow(!show);
+  };
   const [viewport, setViewport] = useState({
     latitude: 27.173891,
     longitude: 78.042068,
     zoom: 4,
   });
-
-  const params = {
-    navigation: {
-      nextEl: ".swiper-button-next",
-      prevEl: ".swiper-button-prev",
-    },
-    pagination: {
-      el: ".swiper-pagination",
-      clickable: true,
-    },
-    on: {
-      realIndexChange: (swiper) => console.log(swiper.realIndex),
-    },
-  };
 
   const {
     isOpen: isLoginOpen,
@@ -130,15 +138,19 @@ function Map() {
   } = useDisclosure();
 
   const {
-    isOpen: isPhotoOpen,
-    onOpen: onPhotoOpen,
-    onClose: onPhotoClose,
+    isOpen: isEditOpen,
+    onOpen: onEditOpen,
+    onClose: onEditClose,
   } = useDisclosure();
-
   const {
     isOpen: isDrawerOpen,
     onOpen: onDrawerOpen,
     onClose: onDrawerClose,
+  } = useDisclosure();
+  const {
+    isOpen: isLeftDrawerOpen,
+    onOpen: onLeftDrawerOpen,
+    onClose: onLeftDrawerClose,
   } = useDisclosure();
   const btnRef = React.useRef();
   const handleMarkerClick = (id, lat, long, child) => {
@@ -155,71 +167,10 @@ function Map() {
     });
   };
 
-  const handleCardClick = (id) => {
-    setCurrentCard(id);
-  };
-
-  const PosterSubmit = () => {
-    history.push("/poster");
-  };
-
-  const handleAddClick = (e) => {
-    setNewPlace({
-      lat: e.lngLat.lat,
-      long: e.lngLat.lng,
-    });
-    console.log(viewport.latitude);
-    console.log(e.lngLat.lat);
-  };
-
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    const newPin = {
-      username: tournamentname,
-      title: title,
-      desc: "hey stupid",
-      rating: 1,
-      lat: 4.65178,
-      long: 101.08413,
-    };
-
-    try {
-      const res = await axiosInstance.post("/pins", newPin);
-      setPins([...pins, res.data]);
-      setNewPlace(null);
-    } catch (err) {
-      console.log(err);
-    }
-  };
-
   const logoutHandler = () => {
     setUser(null);
     myStorage.removeItem("userInfo");
   };
-  function openNav() {
-    document.getElementById("mySidenav").style.width = "450px";
-  }
-
-  function closeNav() {
-    document.getElementById("mySidenav").style.width = "0";
-  }
-
-  function openNav1() {
-    if (selectedOption === "Cricket") {
-      //  block of code to be executed if condition1 is true
-      document.getElementById("mySidenav1").style.width = "450px";
-    } else if (selectedOption === "Football") {
-      //  block of code to be executed if the condition1 is false and condition2 is true
-      document.getElementById("mySidenav2").style.width = "450px";
-    } else {
-      //  block of code to be executed if the condition1 is false and condition2 is false
-    }
-  }
-
-  function closeNav1() {
-    document.getElementById("mySidenav1").style.width = "0";
-    document.getElementById("mySidenav2").style.width = "0";
-  }
 
   const postDetails = (pics) => {
     setLoading(true);
@@ -265,25 +216,59 @@ function Map() {
       });
     }
   };
-  const openNav3 = (title, id) => {
-    setCurrentSlide(title);
+  const openNav3 = (
+    tournamentName,
+    id,
+    organizerName,
+    noOfTeam,
+    address,
+    startMatchDate,
+    endMatchDate,
+    time,
+    entryFee,
+    prizeMoney,
+
+    sports
+  ) => {
     setCurrentSlideId(id);
+    setTournamentName(tournamentName);
+    setOrganizerName(organizerName);
+    setNoofTeam(noOfTeam);
+    setAddress(address);
+    setStartMatchDate(startMatchDate);
+    setEndMatchDate(endMatchDate);
+    setTime(time);
+    setEntryFee(entryFee);
+    setPrizeMoney(prizeMoney);
+    setSports(sports);
     onDrawerOpen();
   };
+  const myTournament = () => {
+    onLeftDrawerOpen();
+  };
+  const OrganizeTournament = () => {
+    history.push("/mytournament");
+  };
 
-  function closeNav3() {
-    document.getElementById("mySidenav3").style.width = "0";
-  }
   useEffect(() => {
     const getPins = async () => {
       try {
-        const allPins = await axiosInstance.get("/pins");
+        const allPins = await axiosInstance.get("/api/pins");
         setPins(allPins.data);
       } catch (err) {
         console.log(err);
       }
     };
     getPins();
+    function getCookie(name) {
+      var value = "; " + document.cookie;
+      console.log(value);
+      var parts = value.split("; " + name + "=");
+      if (parts.length == 2) return parts.pop().split(";").shift();
+    }
+
+    let cookieValue = getCookie("lama");
+    console.log(document.cookie);
   }, []);
 
   useEffect(() => {
@@ -299,9 +284,10 @@ function Map() {
     console.log(arr);
     setMarkers(arr);
   }, [pins]);
+
   const handleRename = async () => {
     try {
-      const { data } = await axios.put(`/api/edit/rename`, {
+      const { data } = await axiosInstance.put(`/api/edit/rename`, {
         chatId: currentSlideId,
         chatName: pic,
       });
@@ -318,30 +304,66 @@ function Map() {
       });
     }
   };
-  return (
-    <div className="">
-      <Header></Header>
+  const handleRenameGroupLink = async () => {
+    try {
+      const { data } = await axiosInstance.put(`/api/edit/renamegroup`, {
+        chatId: currentSlideId,
+        chatName: currentSlideId,
+      });
 
+      console.log(data._id);
+    } catch (error) {
+      toast({
+        title: "Error Occured!",
+        description: error.response.data.message,
+        status: "error",
+        duration: 5000,
+        isClosable: true,
+        position: "bottom",
+      });
+    }
+  };
+  return (
+    <div class="whole">
+      <div class="header">
+        {user ? (
+          <Menu>
+            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
+              <Avatar
+                size={"sm"}
+                cursor="pointer"
+                name={user.name}
+                src={user.pic}
+              />
+            </MenuButton>
+            <MenuList>
+              <ProfileModal user={user}>
+                <MenuItem>My Profile</MenuItem>
+              </ProfileModal>
+              <MenuDivider />
+              <MenuItem onClick={logoutHandler}>Logout</MenuItem>
+            </MenuList>
+          </Menu>
+        ) : (
+          <div>
+            <button class="log" onClick={onLoginOpen}>
+              Login
+            </button>
+          </div>
+        )}
+      </div>
       <ReactMapGL
         ref={mapRef}
         mapboxAccessToken={process.env.REACT_APP_MAPBOX}
         style={{
-          width: "100%",
+          width: "100vw",
           height: "100vh",
+          position: "relative",
         }}
         {...viewport}
         onMove={(evt) => setViewport(evt.viewport)}
         mapStyle="mapbox://styles/safak/cknndpyfq268f17p53nmpwira"
       >
-        <>
-          <Alert status="warning">
-            <AlertIcon />
-            <p>
-              Website currently in development stage. Wait till mid january to
-              get stable.
-            </p>
-          </Alert>
-        </>
         <>
           <Swiper
             ref={ref}
@@ -359,111 +381,57 @@ function Map() {
             className="mySwiper bottom-element"
           >
             {markers.map((p, index) => (
-              <>
-                {" "}
-                <SwiperSlide
-                  key={index}
-                  onClick={() => openNav3(p.title, p._id)}
-                >
-                  {({ isActive }) => (
-                    <>
-                      <img
-                        align="left"
-                        src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"
-                      ></img>
-                      <div class="grid grid-cols-12 gap-3 min-h-full">
-                        <div class="col-start-1 col-end-6 ml-3 sm:ml-7">
-                          <div class=" mt-6 ">{p.title}</div>
-                          <div class="mt-4">Date:22/11/2022</div>
-                        </div>
-                        <div class="vl col-start-6 col-end-7 mt-7 "></div>
-                        <div class="col-end-13 col-span-6">
-                          <div class="mt-10">Entry fee:Free</div>
-                        </div>
-                        {isActive ? (
-                          <>
-                            {setLongitude(p.long)}
-                            {setLatitude(p.lat)}
-                          </>
-                        ) : (
-                          ""
-                        )}
+              <SwiperSlide
+                key={index}
+                onClick={() =>
+                  openNav3(
+                    p.tournamentName,
+                    p._id,
+                    p.organizerName,
+                    p.noOfTeam,
+                    p.address,
+                    p.startMatchDate,
+                    p.endMatchDate,
+                    p.time,
+                    p.entryFee,
+                    p.prizeMoney,
+                    p.createdBy,
+                    p.sports
+                  )
+                }
+              >
+                {({ isActive }) => (
+                  <>
+                    <img
+                      align="left"
+                      src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"
+                    />
+                    <div className="grid grid-cols-12 gap-3 min-h-full">
+                      <div className="col-start-1 col-end-6 ml-3 sm:ml-7">
+                        <div className="mt-6">{p.tournamentName}</div>
+                        <div className="mt-4">{p.sports}</div>
                       </div>
-                    </>
-                  )}
-                </SwiperSlide>
-              </>
+                      <div className="vl col-start-6 col-end-7 mt-7" />
+                      <div className="col-end-13 col-span-6">
+                        <div className="mt-10">Entry fee:{p.entryFee}</div>
+                      </div>
+                      {isActive ? (
+                        <>
+                          {setLongitude(p.long)}
+                          {setLatitude(p.lat)}
+                        </>
+                      ) : (
+                        ""
+                      )}
+                    </div>
+                  </>
+                )}
+              </SwiperSlide>
             ))}
 
             <>
               {user ? (
                 <>
-                  <div id="mySidenav" class="sidenav">
-                    <a class="closebtn" onClick={closeNav}>
-                      &times;
-                    </a>
-                    <Select
-                      placeholder="Select option"
-                      onChange={(e) => setSelectedOption(e.target.value)}
-                    >
-                      <option value="Football">Football</option>
-                      <option value="Cricket">Cricket</option>
-                      <option value="Badminton">Badminton</option>
-                      <option value="Hockey">Hockey</option>
-                    </Select>
-
-                    <button onClick={openNav1}>Show Value</button>
-                  </div>
-
-                  <div id="mySidenav1" class="sidenav">
-                    <a class="closebtn" onClick={closeNav1}>
-                      &times;
-                    </a>
-                    <form action="#" class="mb-6" onSubmit={handleSubmit}>
-                      <div class="mb-6">
-                        <label
-                          for="email"
-                          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          Tournmanet name:
-                        </label>
-                        <input
-                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          required
-                          onChange={(e) => setTournamentName(e.target.value)}
-                        />
-                      </div>
-                      <div class="mb-6">
-                        <label
-                          for="subject"
-                          class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-                        >
-                          Title
-                        </label>
-                        <input
-                          type="text"
-                          class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                          required
-                          onChange={(e) => setTitle(e.target.value)}
-                        />
-                      </div>
-
-                      <button
-                        type="submit"
-                        class="text-white bg-blue-700 hover:bg-blue-800 w-full focus:ring-4 focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 mr-2 mb-2 dark:bg-blue-600 dark:hover:bg-blue-700 focus:outline-none dark:focus:ring-blue-800 block"
-                      >
-                        Send message
-                      </button>
-                    </form>{" "}
-                  </div>
-
-                  <div id="mySidenav2" class="sidenav">
-                    <a class="closebtn" onClick={closeNav1}>
-                      &times;
-                    </a>
-
-                    <button>Football</button>
-                  </div>
                   <div class="flex justify-center">
                     <button
                       className="text-purple-500 bg-white px-10 py-4 shadow-md rounded-full font-bold my-3 hover:shadow-xl w-3/4"
@@ -518,42 +486,8 @@ function Map() {
                 onClick={() => handleMarkerClick(p._id, p.lat, p.long, index)}
               />
             </Marker>
-
-            {p._id === currentPlaceId && (
-              <div id="mySidenav3" class="sidenav3">
-                <a
-                  href="javascript:void(0)"
-                  class="closebtn"
-                  onClick={closeNav3}
-                >
-                  &times;
-                </a>
-
-                <img
-                  src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"
-                  class="w-fit rounded-lg"
-                  onClick={onPhotoOpen}
-                ></img>
-
-                <a href="#">About</a>
-                <a href="#">Services</a>
-                <a href="#">Clients</a>
-                <a href="#">{p._id}</a>
-              </div>
-            )}
           </>
         ))}
-
-        <>
-          <Modal isOpen={isPhotoOpen} onClose={onPhotoClose}>
-            <ModalContent>
-              <ModalCloseButton />
-              <ModalBody>
-                <img src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"></img>
-              </ModalBody>
-            </ModalContent>
-          </Modal>
-        </>
 
         <>
           <Drawer
@@ -561,13 +495,14 @@ function Map() {
             placement="right"
             onClose={onDrawerClose}
             finalFocusRef={btnRef}
+            size="sm"
           >
             <DrawerOverlay />
             <DrawerContent>
               <DrawerCloseButton />
               <DrawerHeader>{currentSlide}</DrawerHeader>
               <DrawerBody>
-                <FormControl id="pic">
+                {/* <FormControl id="pic">
                   <FormLabel>Upload your picture</FormLabel>
                   <Input
                     type={"file"}
@@ -595,12 +530,135 @@ function Map() {
                   onClick={() => history.push("/image")}
                 >
                   Photo Template
-                </Button>
+                </Button> */}
+                <Stack spacing="26px">
+                  <Box>
+                    <FormLabel>{tournamentname}</FormLabel>
+                    <h1>{currentCardDesc}</h1>
+                  </Box>
+                  <img
+                    align="left"
+                    src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"
+                    width="200"
+                    height="200"
+                  />
+                  <Box>
+                    <FormLabel>Organizer</FormLabel>
+                    <h1>{organizerName}</h1>
+                  </Box>
+                  <Box>
+                    <FormLabel>No. of Team</FormLabel>
+                    <h1>{noofTeam}</h1>
+                  </Box>
+                  <Box>
+                    <FormLabel>Address</FormLabel>
+                    <h1>{address}</h1>
+                  </Box>
+                  <Box>
+                    <FormLabel>Date(from)</FormLabel>
+                    <h1>{startMatchDate}</h1>
+                  </Box>
+                  <Box>
+                    <FormLabel>Date(to)</FormLabel>
+                    <h1>{endMatchDate}</h1>
+                  </Box>
+                  <Box>
+                    <FormLabel>Time</FormLabel>
+                    <h1>{time}</h1>
+                  </Box>
+                  <Box>
+                    <FormLabel>Entry Fee</FormLabel>
+                    <h1>{entryFee}</h1>
+                  </Box>
+                  <Box>
+                    <FormLabel>Prize Money</FormLabel>
+                    <h1>{prizeMoney}</h1>
+                  </Box>
+                  <Box>
+                    <FormLabel>Group Link</FormLabel>
+                    {user ? (
+                      <div class="edit-button">
+                        <h1>{prizeMoney}</h1>
+                        <Button width={"10%"} onClick={onEditOpen}>
+                          Edit
+                        </Button>
+                      </div>
+                    ) : (
+                      <h1>..........</h1>
+                    )}
+                  </Box>
+                  <Button
+                    width={"100%"}
+                    colorScheme="blue"
+                    style={{ marginTop: "1rem" }}
+                    onClick={() =>
+                      history.push({
+                        pathname: "/participate",
+                        state: { props: currentSlideId },
+                      })
+                    }
+                  >
+                    Register
+                  </Button>
+                </Stack>
               </DrawerBody>
             </DrawerContent>
           </Drawer>
         </>
       </ReactMapGL>
+      <div class="my-tournament">
+        <button onClick={() => myTournament()}>More</button>
+      </div>
+      <>
+        <Drawer
+          isOpen={isLeftDrawerOpen}
+          placement="left"
+          onClose={onLeftDrawerClose}
+          finalFocusRef={btnRef}
+        >
+          <DrawerOverlay />
+          <DrawerContent>
+            <DrawerCloseButton />
+            <DrawerHeader></DrawerHeader>
+            <DrawerBody>
+              <button onClick={() => OrganizeTournament()}>
+                My Tournament
+              </button>
+            </DrawerBody>
+          </DrawerContent>
+        </Drawer>
+      </>
+      <>
+        <Modal isOpen={isEditOpen} onClose={onEditClose}>
+          <ModalOverlay />
+          <ModalContent>
+            <ModalHeader
+              fontSize="35px"
+              fontFamily="Work sans"
+              d="flex"
+              justifyContent="center"
+            >
+              Update Group Link
+            </ModalHeader>
+
+            <ModalCloseButton />
+            <ModalBody d="flex" flexDir="column" alignItems="center">
+              <FormControl d="flex">
+                <Select placeholder="Select option">
+                  <option value="option1">Discord</option>
+                  <option value="option2">Telegram</option>
+                </Select>
+                <Input placeholder="Link" mb={3} />
+              </FormControl>
+            </ModalBody>
+            <ModalFooter>
+              <Button colorScheme="teal" onClick={handleRenameGroupLink}>
+                Update
+              </Button>
+            </ModalFooter>
+          </ModalContent>
+        </Modal>
+      </>
     </div>
   );
 }

@@ -1,9 +1,7 @@
-import React, { useEffect } from "react";
-
+import React from "react";
 import {
   Container,
   Box,
-  Text,
   Tabs,
   TabList,
   TabPanels,
@@ -12,11 +10,8 @@ import {
 } from "@chakra-ui/react";
 import Login from "../components/Authentication/Login";
 import Signup from "../components/Authentication/Signup";
-import { useHistory } from "react-router-dom";
 
 const HomePage = ({ setonClick }) => {
-  const history = useHistory();
-
   return (
     <Container maxW="xl" centerContent>
       <Box bg={"blue.100"} borderRadius="lg" width={"100%"} p={10}>

@@ -92,38 +92,32 @@ const Login = ({ setonClick1 }) => {
   };
 
   const google = async () => {
-    const popup = window.open(
-      "https://tournamaxsports.com/api/auth/google",
-      "_blank",
-      "height=400,width=450"
-    );
-    if (popup) {
-      popup.onload = async function () {
-        // your code here will run once the popup window has finished loading
-        try {
-          const response = await fetch(
-            "https://tournamaxsports.com/api/auth/login/success",
-            {
-              method: "GET",
-              headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-              },
-              credentials: "include",
-            }
-          );
-          const user = await response.json();
-          localStorage.setItem("userInfo", JSON.stringify(user.user));
-          setUser(user);
-          console.log(user);
-        } catch (error) {
-          console.log("Failed to get user information", error);
+    window.location.href = "https://tournamaxsports.com/auth/google";
+    try {
+      const response = await fetch(
+        "https://tournamaxsports.com/auth/login/success",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Accept: "application/json",
+          },
+          credentials: "include",
         }
-        popup.close();
-      };
+      );
+      if (response.ok) {
+        const user = await response.json();
+        console.log(user);
+        const userInfo = { ...user.user, ...{ token: user.token } };
+        localStorage.setItem("userInfo", JSON.stringify(userInfo));
+        if (!user) setUser(user);
+      } else {
+        console.log("Error in getting user information");
+      }
+    } catch (error) {
+      console.log("Failed to get user information", error);
     }
   };
-
   return (
     <VStack spacing={"5px"}>
       <FormControl id="email" isRequired>

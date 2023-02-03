@@ -1,8 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useHistory } from "react-router-dom";
+import HockeySvg from "./svg/Hockey";
+import BadmintonSvg from "./svg/Badminton";
+import CricketSvg from "./svg/Cricket";
+import FootballSvg from "./svg/Football";
+
 function Organaize() {
   const [selectedOption, setSelectedOption] = useState(null);
   const history = useHistory();
+
   useEffect(() => {
     const optionMenu = document.querySelector(".select-menu"),
       selectBtn = optionMenu.querySelector(".select-btn"),
@@ -21,18 +27,28 @@ function Organaize() {
         optionMenu.classList.remove("active");
       });
     });
+
+    return () => {
+      selectBtn.removeEventListener("click", () =>
+        optionMenu.classList.toggle("active")
+      );
+      options.forEach((option) => {
+        option.removeEventListener("click", () => {
+          let selectedOption = option.querySelector(".option-text").innerText;
+          sBtn_text.innerText = selectedOption;
+          setSelectedOption(selectedOption);
+          optionMenu.classList.remove("active");
+        });
+      });
+    };
   }, []);
 
   function openNav1() {
     if (selectedOption === "Cricket") {
-      //  block of code to be executed if condition1 is true
       console.log("Cricket");
     } else if (selectedOption === "Football") {
-      //  block of code to be executed if the condition1 is false and condition2 is true
-      console.log("Football");
       history.push("/Football");
     } else {
-      //  block of code to be executed if the condition1 is false and condition2 is false
       console.log("dc");
     }
   }
@@ -45,34 +61,21 @@ function Organaize() {
 
       <ul class="options">
         <li class="option">
-          {/* <i class="bx bxl-github" style={{ color: "#171515" }}></i> */}
-          <span class="option-text">Football</span>
+          <FootballSvg /> <span class="option-text">Football</span>
         </li>
         <li class="option">
-          {/* <i class="bx bxl-instagram-alt" style={{ color: "#E1306C" }}></i> */}
-          <span class="option-text">Cricket</span>
+          <CricketSvg /> <span class="option-text">Cricket</span>
         </li>
         <li class="option">
-          {/* <i class="bx bxl-linkedin-square" style={{ color: "#0E76A8" }}></i> */}
-          <span class="option-text">Badminton</span>
+          <BadmintonSvg /> <span class="option-text">Badminton</span>
         </li>
         <li class="option">
-          {/* <svg width="100" height="100">
-            <circle
-              cx="50"
-              cy="50"
-              r="40"
-              stroke="green"
-              stroke-width="4"
-              fill="yellow"
-            />
-            Sorry, your browser does not support inline SVG.
-          </svg> */}
-
-          <span class="option-text">Hockey</span>
+          <HockeySvg /> <span class="option-text">Hockey</span>
         </li>
       </ul>
-      <button onClick={openNav1}>Next</button>
+      <a href="#" class="next" onClick={openNav1}>
+        Next &raquo;
+      </a>
     </div>
   );
 }
