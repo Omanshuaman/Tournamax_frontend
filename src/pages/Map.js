@@ -8,14 +8,8 @@ import ProfileModal from "../components/miscellaneous/ProfileModal";
 import axios from "axios";
 import Header from "../components/Header";
 import * as React from "react";
-import {
-  Alert,
-  AlertIcon,
-  AlertTitle,
-  AlertDescription,
-} from "@chakra-ui/react";
-import Cookies from "js-cookie";
-
+import Cookies from "universal-cookie";
+import ReactGA from "react-ga";
 import {
   Button,
   FormControl,
@@ -25,6 +19,7 @@ import {
   InputRightElement,
   VStack,
   useToast,
+  HStack,
 } from "@chakra-ui/react";
 import { Pagination } from "swiper";
 import {
@@ -68,12 +63,14 @@ import {
 import { ChatState } from "../Context/ChatProvider";
 import { useHistory } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
+import jwt_decode from "jwt-decode";
+
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
-// import required modules
-import { Navigation } from "swiper";
+
 import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
+
 /* eslint-disable import/no-webpack-loader-syntax */
 // @ts-ignore
 mapboxgl.workerClass =
@@ -86,7 +83,7 @@ function Map() {
   const { user, setUser } = ChatState();
   const [show, setShow] = useState(false);
   const [password, setPassword] = useState();
-
+  const [userId, setUserId] = useState([]);
   const [selectedOption, setSelectedOption] = useState(null);
   const [tournamentname, setTournamentName] = useState(null);
   const [title, setTitle] = useState(null);
@@ -108,15 +105,14 @@ function Map() {
   const [currentCardId, setCurrentCard] = useState(null);
   const [currentCardDesc, setCurrentCardDesc] = useState(null);
   const [currentCardUsername, setCurrentCardUsername] = useState(null);
-
+  const [picture, setPicture] = useState();
+  const cookies = new Cookies();
   const [markers, setMarkers] = useState([]);
   const [currentSlide, setCurrentSlide] = useState([]);
   const [currentSlideId, setCurrentSlideId] = useState([]);
   const [longitude, setLongitude] = useState(null);
   const [latitude, setLatitude] = useState(null);
-  const [loading, setLoading] = useState(false);
   const toast = useToast();
-  const [pic, setPic] = useState();
   const axiosInstance = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
   });
@@ -137,11 +133,6 @@ function Map() {
     onClose: onLoginClose,
   } = useDisclosure();
 
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
-  } = useDisclosure();
   const {
     isOpen: isDrawerOpen,
     onOpen: onDrawerOpen,
@@ -170,52 +161,9 @@ function Map() {
   const logoutHandler = () => {
     setUser(null);
     myStorage.removeItem("userInfo");
+    cookies.remove("token");
   };
 
-  const postDetails = (pics) => {
-    setLoading(true);
-    if (pics === undefined) {
-      toast({
-        title: "Please select an Image.",
-        // description: "We've created your account for you.",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
-      return;
-    }
-
-    if (pics.type === "image/jpeg" || pics.type === "image/png") {
-      const data = new FormData();
-      data.append("file", pics);
-      data.append("upload_preset", "chat-app");
-      data.append("cloud_name", "eleven-cloud");
-      fetch("https://api.cloudinary.com/v1_1/eleven-cloud/image/upload", {
-        method: "post",
-        body: data,
-      })
-        .then((res) => res.json())
-        .then((data) => {
-          setPic(data.url.toString());
-          console.log(data);
-          setLoading(false);
-        })
-        .catch((err) => {
-          console.log(err);
-          setLoading(false);
-        });
-    } else {
-      toast({
-        title: "Please select an Image.",
-        // description: "We've created your account for you.",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
-    }
-  };
   const openNav3 = (
     tournamentName,
     id,
@@ -227,8 +175,9 @@ function Map() {
     time,
     entryFee,
     prizeMoney,
-
-    sports
+    createdBy,
+    sports,
+    pics
   ) => {
     setCurrentSlideId(id);
     setTournamentName(tournamentName);
@@ -241,7 +190,9 @@ function Map() {
     setEntryFee(entryFee);
     setPrizeMoney(prizeMoney);
     setSports(sports);
+    setPicture(pics);
     onDrawerOpen();
+    console.log(pics + "gg");
   };
   const myTournament = () => {
     onLeftDrawerOpen();
@@ -260,15 +211,8 @@ function Map() {
       }
     };
     getPins();
-    function getCookie(name) {
-      var value = "; " + document.cookie;
-      console.log(value);
-      var parts = value.split("; " + name + "=");
-      if (parts.length == 2) return parts.pop().split(";").shift();
-    }
-
-    let cookieValue = getCookie("lama");
-    console.log(document.cookie);
+    ReactGA.initialize("UA-227757407-1");
+    ReactGA.pageview("https://tournamaxsports.com/");
   }, []);
 
   useEffect(() => {
@@ -284,45 +228,28 @@ function Map() {
     console.log(arr);
     setMarkers(arr);
   }, [pins]);
-
-  const handleRename = async () => {
+  function JoinGroup() {
+    window.open(prizeMoney, "_blank");
+  }
+  const submitHandler = async () => {
     try {
-      const { data } = await axiosInstance.put(`/edit/rename`, {
-        chatId: currentSlideId,
-        chatName: pic,
-      });
-
-      console.log(data._id);
+      const cookieValue = document.cookie
+        .split(";")
+        .find((c) => c.trim().startsWith("token="));
+      if (!cookieValue) return;
+      const decoded = jwt_decode(cookieValue.split("=")[1]);
+      const res = await axios.get(`/api/user/${decoded.id}`);
+      localStorage.setItem("userInfo", JSON.stringify(res.data[0]));
+      setUser(res.data[0]);
     } catch (error) {
-      toast({
-        title: "Error Occured!",
-        description: error.response.data.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
+      console.error(error);
     }
   };
-  const handleRenameGroupLink = async () => {
-    try {
-      const { data } = await axiosInstance.put(`/edit/renamegroup`, {
-        chatId: currentSlideId,
-        chatName: currentSlideId,
-      });
 
-      console.log(data._id);
-    } catch (error) {
-      toast({
-        title: "Error Occured!",
-        description: error.response.data.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
-      });
-    }
-  };
+  useEffect(() => {
+    submitHandler();
+  }, []);
+
   return (
     <div class="whole">
       <div class="header">
@@ -337,6 +264,9 @@ function Map() {
               />
             </MenuButton>
             <MenuList>
+              <MenuItem onClick={() => OrganizeTournament()}>
+                My Tournament
+              </MenuItem>
               <ProfileModal user={user}>
                 <MenuItem>My Profile</MenuItem>
               </ProfileModal>
@@ -396,7 +326,8 @@ function Map() {
                     p.entryFee,
                     p.prizeMoney,
                     p.createdBy,
-                    p.sports
+                    p.sports,
+                    p.pic
                   )
                 }
               >
@@ -406,15 +337,11 @@ function Map() {
                       align="left"
                       src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"
                     />
-                    <div className="grid grid-cols-12 gap-3 min-h-full">
-                      <div className="col-start-1 col-end-6 ml-3 sm:ml-7">
-                        <div className="mt-6">{p.tournamentName}</div>
-                        <div className="mt-4">{p.sports}</div>
-                      </div>
-                      <div className="vl col-start-6 col-end-7 mt-7" />
-                      <div className="col-end-13 col-span-6">
-                        <div className="mt-10">Entry fee:{p.entryFee}</div>
-                      </div>
+                    <div class="grid_swiper">
+                      <div class="tournamentname">{p.tournamentName}</div>
+                      <div class="sportsname">{p.sports}</div>
+                      <div class="vlcard2">Entry fee:{p.entryFee}</div>
+
                       {isActive ? (
                         <>
                           {setLongitude(p.long)}
@@ -428,13 +355,12 @@ function Map() {
                 )}
               </SwiperSlide>
             ))}
-
             <>
               {user ? (
                 <>
-                  <div class="flex justify-center">
+                  <div class="organize">
                     <button
-                      className="text-purple-500 bg-white px-10 py-4 shadow-md rounded-full font-bold my-3 hover:shadow-xl w-3/4"
+                      class="organize_button"
                       //     onClick={openNav}
                       onClick={() => history.push("/organize")}
                     >
@@ -443,9 +369,10 @@ function Map() {
                   </div>
                 </>
               ) : (
-                <div class="flex justify-center">
+                <div class="organize">
                   <button
-                    className="text-purple-500 bg-white px-10 py-4 shadow-lg rounded-full font-bold my-3 hover:shadow-xl w-3/4"
+                    class="organize_button"
+                    //     onClick={openNav}
                     onClick={onLoginOpen}
                   >
                     ORGANIZE YOUR TOURNAMENT
@@ -466,7 +393,6 @@ function Map() {
             </>
           </Swiper>
         </>
-
         {markers.map((p, index) => (
           <>
             <Marker
@@ -488,7 +414,6 @@ function Map() {
             </Marker>
           </>
         ))}
-
         <>
           <Drawer
             isOpen={isDrawerOpen}
@@ -502,46 +427,23 @@ function Map() {
               <DrawerCloseButton />
               <DrawerHeader>{currentSlide}</DrawerHeader>
               <DrawerBody>
-                {/* <FormControl id="pic">
-                  <FormLabel>Upload your picture</FormLabel>
-                  <Input
-                    type={"file"}
-                    p={"1.5"}
-                    bg={"gray.50"}
-                    accept="image/*"
-                    onChange={(e) => {
-                      postDetails(e.target.files[0]);
-                    }}
-                  />
-                </FormControl>
-                <Button
-                  width={"100%"}
-                  colorScheme="blue"
-                  style={{ marginTop: "1rem" }}
-                  isLoading={loading}
-                  onClick={handleRename}
-                >
-                  Sign Up
-                </Button>
-                <Button
-                  width={"100%"}
-                  colorScheme="blue"
-                  style={{ marginTop: "1rem" }}
-                  onClick={() => history.push("/image")}
-                >
-                  Photo Template
-                </Button> */}
                 <Stack spacing="26px">
                   <Box>
                     <FormLabel>{tournamentname}</FormLabel>
                     <h1>{currentCardDesc}</h1>
                   </Box>
-                  <img
-                    align="left"
-                    src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"
-                    width="200"
-                    height="200"
-                  />
+
+                  {picture !== "" && (
+                    <>
+                      <img
+                        align="left"
+                        src={picture}
+                        width="250"
+                        height="250"
+                      />
+                    </>
+                  )}
+
                   <Box>
                     <FormLabel>Organizer</FormLabel>
                     <h1>{organizerName}</h1>
@@ -576,16 +478,15 @@ function Map() {
                   </Box>
                   <Box>
                     <FormLabel>Group Link</FormLabel>
-                    {user ? (
-                      <div class="edit-button">
-                        <h1>{prizeMoney}</h1>
-                        <Button width={"10%"} onClick={onEditOpen}>
-                          Edit
-                        </Button>
-                      </div>
-                    ) : (
-                      <h1>..........</h1>
-                    )}
+                    <div class="edit-button">
+                      <h1>{prizeMoney}</h1>
+                      <Button width={"10%"} onClick={JoinGroup}>
+                        Join
+                      </Button>
+                      {/* <Button width={"10%"} onClick={onEditOpen}>
+                        Join
+                      </Button> */}
+                    </div>
                   </Box>
                   <Button
                     width={"100%"}
@@ -606,59 +507,6 @@ function Map() {
           </Drawer>
         </>
       </ReactMapGL>
-      <div class="my-tournament">
-        <button onClick={() => myTournament()}>More</button>
-      </div>
-      <>
-        <Drawer
-          isOpen={isLeftDrawerOpen}
-          placement="left"
-          onClose={onLeftDrawerClose}
-          finalFocusRef={btnRef}
-        >
-          <DrawerOverlay />
-          <DrawerContent>
-            <DrawerCloseButton />
-            <DrawerHeader></DrawerHeader>
-            <DrawerBody>
-              <button onClick={() => OrganizeTournament()}>
-                My Tournament
-              </button>
-            </DrawerBody>
-          </DrawerContent>
-        </Drawer>
-      </>
-      <>
-        <Modal isOpen={isEditOpen} onClose={onEditClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader
-              fontSize="35px"
-              fontFamily="Work sans"
-              d="flex"
-              justifyContent="center"
-            >
-              Update Group Link
-            </ModalHeader>
-
-            <ModalCloseButton />
-            <ModalBody d="flex" flexDir="column" alignItems="center">
-              <FormControl d="flex">
-                <Select placeholder="Select option">
-                  <option value="option1">Discord</option>
-                  <option value="option2">Telegram</option>
-                </Select>
-                <Input placeholder="Link" mb={3} />
-              </FormControl>
-            </ModalBody>
-            <ModalFooter>
-              <Button colorScheme="teal" onClick={handleRenameGroupLink}>
-                Update
-              </Button>
-            </ModalFooter>
-          </ModalContent>
-        </Modal>
-      </>
     </div>
   );
 }

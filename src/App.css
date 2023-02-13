@@ -1,7 +1,8 @@
-@import url("https://fonts.googleapis.com/css2?family=Work+Sans:wght@300&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Poppins:wght@100;200;300;400;500;600;700;800;900&display=swap");
+/* 
 @tailwind base;
 @tailwind components;
-@tailwind utilities;
+@tailwind utilities; */
 
 .whole {
   overflow: hidden;
@@ -14,19 +15,66 @@
   border-radius: 10px;
   padding: 10px 10px 95px 10px !important;
 }
+
 .swiper-slide {
-  text-align: left;
+  display: flex;
   background: #fff;
   border-radius: 15px;
   box-shadow: 0 6px 10px 0 rgba(0, 0, 0, 0.19);
   cursor: pointer;
+  height: 100%;
 }
+
 .swiper-slide img {
-  border-top-left-radius: 15px;
-  border-bottom-left-radius: 15px;
   width: 28%;
   height: 100%;
   object-fit: cover;
+  border-top-left-radius: 15px;
+  border-bottom-left-radius: 15px;
+}
+.grid_swiper {
+  display: flex;
+  flex-direction: column;
+  padding: 20px;
+  width: 72%;
+}
+
+.tournamentname {
+  font-size: 16px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.sportsname {
+  font-size: 12px;
+  color: #8f8f8f;
+  margin-bottom: 8px;
+}
+
+.vlcard2 {
+  font-size: 12px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+
+@media only screen and (max-height: 700px) {
+  .swiper {
+    margin-top: 470px;
+  }
+}
+@media only screen and (max-height: 650px) {
+  .swiper {
+    margin-top: 420px;
+  }
+}
+@media only screen and (max-height: 600px) {
+  .swiper {
+    margin-top: 370px;
+  }
+}
+@media only screen and (max-height: 550px) {
+  .swiper {
+    margin-top: 320px;
+  }
 }
 .vl {
   border-left: 2px solid rgb(240, 232, 232);
@@ -95,7 +143,6 @@ body {
   left: 400px;
   z-index: 1;
 }
-
 .log {
   color: rgb(104, 85, 224);
   background-color: rgba(255, 255, 255, 1);
@@ -104,7 +151,6 @@ body {
   border-radius: 5px;
   height: 30px;
 }
-
 .log:hover {
   color: white;
   width: 70px;
@@ -211,7 +257,6 @@ body {
 .options .option:hover {
   background: #f2f2f2;
 }
-
 .option .option-text {
   font-size: 18px;
   color: #333;
@@ -221,7 +266,6 @@ body {
   background-color: #04aa6d;
   color: white;
 }
-
 .select-menu a {
   text-decoration: none;
   display: inline-block;
@@ -230,25 +274,19 @@ body {
   margin-left: 300px;
   border-radius: 5px;
 }
-
 .select-menu a:hover {
   background-color: #ddd;
   color: black;
 }
-
 .card {
   box-shadow: 0 4px 8px 0 rgba(0, 0, 0, 0.2);
   transition: 0.3s;
   width: 40%;
 }
-
 .card:hover {
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.2);
 }
 
-.container {
-  padding: 2px 16px;
-}
 .edit-button h1 {
   display: inline-block;
 }
@@ -256,7 +294,6 @@ body {
   float: right;
   background-color: yellow;
 }
-
 .myDIV button {
   background-color: #01aaad;
   width: 100px;
@@ -264,9 +301,176 @@ body {
   float: right;
   margin-left: 2px;
 }
-
 #btnHolder {
   position: absolute;
   bottom: 1px;
   right: 10px;
+}
+
+.container {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  margin: 40px 20px 0 20px;
+}
+
+.container .heading {
+  width: 50%;
+  padding-bottom: 50px;
+}
+.container .heading h3 {
+  font-size: 3em;
+  font-weight: bolder;
+  padding-bottom: 10px;
+  border-bottom: 3px solid #222;
+}
+
+.container .heading h3 span {
+  font-weight: 100;
+}
+.container .box {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.container .box .dream {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  margin: 10px;
+  width: calc(33.33% - 20px);
+}
+
+.container .box .dream img {
+  padding-bottom: 15px;
+  border-radius: 5px;
+}
+
+.container .btn {
+  margin: 40px 0 70px 0;
+  background: #222;
+  padding: 15px 40px;
+  border-radius: 5px;
+}
+
+.container .btn a {
+  color: #fff;
+  font-size: 1.2em;
+  text-decoration: none;
+  font-weight: bolder;
+  letter-spacing: 3px;
+}
+
+@media only screen and (max-width: 769px) {
+  .container .box {
+    flex-direction: column;
+  }
+
+  .container .box .dream {
+    width: 100%;
+  }
+}
+
+@media only screen and (max-width: 643px) {
+  .container .heading {
+    width: 100%;
+  }
+  .container .heading h3 {
+    font-size: 1em;
+  }
+}
+
+.organize {
+  display: flex;
+  justify-content: center;
+}
+.organize_button {
+  display: flex;
+  justify-content: center;
+  color: #805ad5;
+  background-color: #ffffff;
+  padding-left: 20px;
+  padding-right: 20px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  box-shadow: 0px 0px 15px rgba(0, 0, 0, 0.5);
+  border-radius: 9999px;
+  font-weight: bold;
+  margin-top: 10px;
+  margin-bottom: 10px;
+  transition: all 0.3s ease;
+  width: 75%;
+  cursor: pointer;
+}
+
+.organize_button:hover {
+  box-shadow: 0px 0px 30px rgba(0, 0, 0, 0.25);
+  opacity: 0.75;
+}
+
+.select-menuu {
+  width: 70px;
+  margin-left: 50px;
+}
+.select-menuu .select-btnu {
+  display: flex;
+  height: 30px;
+  background: #fff;
+  padding: 20px;
+  font-size: 10px;
+  font-weight: 400;
+  border-radius: 8px;
+  align-items: center;
+  cursor: pointer;
+  justify-content: space-between;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.1);
+}
+.select-btnu i {
+  font-size: 10px;
+  transition: 0.3s;
+}
+.select-menuu.active .select-btnu i {
+  transform: rotate(-180deg);
+}
+.select-menuu .optionsu {
+  border-radius: 8px;
+  background: #fff;
+  box-shadow: 0 0 3px rgba(0, 0, 0, 0.1);
+  display: none;
+  width: max-content;
+  background-color: #111;
+  left: 0;
+  position: absolute;
+}
+
+.select-menuu.active .optionsu {
+  display: block;
+}
+
+.optionsu .optionu {
+  display: flex;
+  display: inline-block;
+  height: 55px;
+  cursor: pointer;
+  padding: 0 16px;
+  border-radius: 8px;
+  align-items: center;
+  background: #fff;
+}
+
+.optionsu .optionu:hover {
+  background: #f2f2f2;
+}
+
+.optionu .option-textu {
+  font-size: 18px;
+  color: #333;
+  margin-left: 10px;
+  display: inline-block;
 }

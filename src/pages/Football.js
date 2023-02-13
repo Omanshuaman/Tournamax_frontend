@@ -21,6 +21,7 @@ function FootballOrganize() {
   const [noOfTeam, setNoOfTeam] = useState(null);
   const [entryFee, setEntryFee] = useState(null);
   const [prizeMoney, setPrizeMoney] = useState(null);
+  const [rules, setRules] = useState(null);
   const [pins, setPins] = useState([]);
   const [longitude, setLongitude] = useState("78.656891");
   const [latitude, setLatitude] = useState("22.973423");
@@ -87,6 +88,7 @@ function FootballOrganize() {
       sports: "Football",
       groupLink: "fdv",
       joinedBy: user._id,
+      rules: rules,
     };
 
     try {
@@ -111,7 +113,27 @@ function FootballOrganize() {
             />
             <label class="input-label">Tournament Name</label>
           </div>
-          <div class="input">
+          {/* <div class="select-menuu">
+            <div class="select-btnu">
+              <span class="sBtn-textu">eg-</span>
+              <i class="bx bx-chevron-down"></i>
+            </div>
+            <ul class="optionsu">
+              <li class="optionu">
+                <span class="option-textu">Football</span>
+              </li>
+              <li class="optionu">
+                <span class="option-textu">Cricket</span>
+              </li>
+              <li class="optionu">
+                <span class="option-textu">Badminton</span>
+              </li>
+              <li class="optionu">
+                <span class="option-textu">Hockey</span>
+              </li>
+            </ul>
+          </div> */}
+          <div class="input" style={{ marginTop: "40px" }}>
             <input
               type="text"
               class="input-field"
@@ -131,7 +153,6 @@ function FootballOrganize() {
             />
             <label class="input-label">No. of Players in a team</label>
           </div>
-
           <div class="input">
             <ReactMapGL
               ref={mapRef}
@@ -212,7 +233,15 @@ function FootballOrganize() {
             />
             <label class="input-label">Prize Money</label>
           </div>
-
+          <div class="input">
+            <input
+              type="number"
+              class="input-field"
+              required
+              onChange={(e) => setRules(e.target.value)}
+            />
+            <label class="input-label">Rules</label>
+          </div>
           <div class="action">
             <button class="action-button" type="submit">
               Done
@@ -224,5 +253,4 @@ function FootballOrganize() {
     </div>
   );
 }
-
 export default FootballOrganize;

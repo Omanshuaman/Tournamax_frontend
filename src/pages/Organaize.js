@@ -4,10 +4,15 @@ import HockeySvg from "./svg/Hockey";
 import BadmintonSvg from "./svg/Badminton";
 import CricketSvg from "./svg/Cricket";
 import FootballSvg from "./svg/Football";
+import jwt_decode from "jwt-decode";
+import axios from "axios";
+import { ChatState } from "../Context/ChatProvider";
 
 function Organaize() {
   const [selectedOption, setSelectedOption] = useState(null);
   const history = useHistory();
+  const [userId, setUserId] = useState([]);
+  const { user, setUser } = ChatState();
 
   useEffect(() => {
     const optionMenu = document.querySelector(".select-menu"),
@@ -15,34 +20,31 @@ function Organaize() {
       options = optionMenu.querySelectorAll(".option"),
       sBtn_text = optionMenu.querySelector(".sBtn-text");
 
-    selectBtn.addEventListener("click", () =>
-      optionMenu.classList.toggle("active")
-    );
+    function handleSelectBtnClick() {
+      optionMenu.classList.toggle("active");
+    }
+
+    function handleOptionClick(event) {
+      const option = event.currentTarget;
+      const selectedOption = option.querySelector(".option-text").innerText;
+      sBtn_text.innerText = selectedOption;
+      setSelectedOption(selectedOption);
+      optionMenu.classList.remove("active");
+    }
+
+    selectBtn.addEventListener("click", handleSelectBtnClick);
 
     options.forEach((option) => {
-      option.addEventListener("click", () => {
-        let selectedOption = option.querySelector(".option-text").innerText;
-        sBtn_text.innerText = selectedOption;
-        setSelectedOption(selectedOption);
-        optionMenu.classList.remove("active");
-      });
+      option.addEventListener("click", handleOptionClick);
     });
 
     return () => {
-      selectBtn.removeEventListener("click", () =>
-        optionMenu.classList.toggle("active")
-      );
+      selectBtn.removeEventListener("click", handleSelectBtnClick);
       options.forEach((option) => {
-        option.removeEventListener("click", () => {
-          let selectedOption = option.querySelector(".option-text").innerText;
-          sBtn_text.innerText = selectedOption;
-          setSelectedOption(selectedOption);
-          optionMenu.classList.remove("active");
-        });
+        option.removeEventListener("click", handleOptionClick);
       });
     };
   }, []);
-
   function openNav1() {
     if (selectedOption === "Cricket") {
       console.log("Cricket");
@@ -52,32 +54,32 @@ function Organaize() {
       console.log("dc");
     }
   }
+
   return (
-    <div class="select-menu">
-      <div class="select-btn">
-        <span class="sBtn-text">Select Sports</span>
-        <i class="bx bx-chevron-down"></i>
+    <div className="select-menu">
+      <div className="select-btn">
+        <span className="sBtn-text">Select Sports</span>
+        <i className="bx bx-chevron-down"></i>
       </div>
 
-      <ul class="options">
-        <li class="option">
-          <FootballSvg /> <span class="option-text">Football</span>
+      <ul className="options">
+        <li className="option">
+          <FootballSvg /> <span className="option-text">Football</span>
         </li>
-        <li class="option">
-          <CricketSvg /> <span class="option-text">Cricket</span>
+        {/* <li className="option">
+          <CricketSvg /> <span className="option-text">Cricket</span>
         </li>
-        <li class="option">
-          <BadmintonSvg /> <span class="option-text">Badminton</span>
+        <li className="option">
+          <BadmintonSvg /> <span className="option-text">Badminton</span>
         </li>
-        <li class="option">
-          <HockeySvg /> <span class="option-text">Hockey</span>
-        </li>
+        <li className="option">
+          <HockeySvg /> <span className="option-text">Hockey</span>
+        </li> */}
       </ul>
-      <a href="#" class="next" onClick={openNav1}>
+      <a href="#" className="next" onClick={openNav1}>
         Next &raquo;
       </a>
     </div>
   );
 }
-
 export default Organaize;
