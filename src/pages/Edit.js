@@ -1,27 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
-import {
-  Button,
-  ModalFooter,
-  Input,
-  Select,
-  FormControl,
-  ModalBody,
-  ModalCloseButton,
-  ModalHeader,
-  ModalContent,
-  ModalOverlay,
-  Modal,
-  useDisclosure,
-  loading,
-  HStack,
-  FormLabel,
-  useToast,
-  VStack,
-} from "@chakra-ui/react";
 import { ChatState } from "../Context/ChatProvider";
 import { useEffect } from "react";
+import { Modal, Button } from "react-bootstrap";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Edit = (props) => {
   const [Name1, setName1] = useState(null);
@@ -32,6 +16,7 @@ const Edit = (props) => {
   const [value, setValue] = useState("");
   const [pins, setPins] = useState([]);
   const { user } = ChatState();
+  const { details, setDetails } = ChatState();
   const history = useHistory();
   const [tournamentName, setTournamentName] = useState(null);
   const [organizerName, setOrganizerName] = useState(null);
@@ -41,7 +26,6 @@ const Edit = (props) => {
   const [rules, setRules] = useState(null);
   const [currentSlideId, setCurrentSlideId] = useState([]);
   const [pic, setPic] = useState();
-  const toast = useToast();
   const [loading, setLoading] = useState(false);
   const [longitude, setLongitude] = useState("78.656891");
   const [latitude, setLatitude] = useState("22.973423");
@@ -49,12 +33,9 @@ const Edit = (props) => {
   const [endDate, setEndDate] = useState(new Date());
   const mapRef = React.useRef();
   const [address, setAddress] = useState(null);
+  const [show, setShow] = useState(false);
   const [time, setTime] = useState("");
-  const {
-    isOpen: isEditOpen,
-    onOpen: onEditOpen,
-    onClose: onEditClose,
-  } = useDisclosure();
+  const handleClose = () => setShow(false);
   const axiosInstance = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
   });
@@ -85,13 +66,15 @@ const Edit = (props) => {
   const postDetails = (pics) => {
     setLoading(true);
     if (pics === undefined) {
-      toast({
-        title: "Please select an Image.",
-        // description: "We've created your account for you.",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
+      toast.warn("Please select an Image.", {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
       return;
     }
@@ -116,13 +99,15 @@ const Edit = (props) => {
           setLoading(false);
         });
     } else {
-      toast({
-        title: "Please select an Image.",
-        // description: "We've created your account for you.",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
+      toast.warn("Please select an Image.", {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
     }
   };
@@ -135,19 +120,26 @@ const Edit = (props) => {
 
       console.log(data._id);
     } catch (error) {
-      toast({
-        title: "Please select an Image.",
-        // description: "We've created your account for you.",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
+      toast.warn("Please select an Image.", {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
     }
   };
   useEffect(() => {
     if (pins && pins.length) {
-      console.log(pins);
+      const posterInfo = localStorage.setItem(
+        "posterdetails",
+        JSON.stringify(pins[0])
+      );
+
+      console.log(details);
       setValue(pins[0].tournamentName);
       setOrganizerName(pins[0].organizerName);
       setNoOfTeam(pins[0].noOfTeam);
@@ -247,41 +239,34 @@ const Edit = (props) => {
           <div class="input">
             <label class="input-label">Poster Image</label>
           </div>
-          <div class="input">
-            <Input
-              type={"file"}
-              p={"1.5"}
-              bg={"gray.50"}
+          <div className="input">
+            <input
+              type="file"
               accept="image/*"
               onChange={(e) => {
                 postDetails(e.target.files[0]);
               }}
             />
-            <Button
-              width={"40%"}
-              colorScheme="blue"
+            <button
+              style={{ width: "40%" }}
               onClick={handleRename}
-              isLoading={loading}
-            >
-              Upload Poster
-            </Button>
+              disabled={loading}>
+              {loading ? "Uploading..." : "Upload Poster"}
+            </button>
           </div>
-          <div class="input">
-            <FormControl id="pic">
-              <VStack spacing="1rem">
-                <Button
-                  width={"40%"}
-                  colorScheme="blue"
-                  onClick={() => history.push("/image")}
-                >
-                  Photo Template
-                </Button>
-              </VStack>
-            </FormControl>
+          <div className="input">
+            <div id="pic">
+              <button
+                style={{ width: "40%" }}
+                onClick={() => history.push("/image")}>
+                Photo Template
+              </button>
+            </div>
           </div>
+
           <div class="input">
             <input
-              type="number"
+              type="text"
               class="input-field"
               required
               min="1"
@@ -293,7 +278,7 @@ const Edit = (props) => {
           </div>
           <div class="input">
             <input
-              type="number"
+              type="text"
               class="input-field"
               required
               value={prizeMoney}
@@ -303,7 +288,7 @@ const Edit = (props) => {
           </div>
           <div class="input">
             <input
-              type="number"
+              type="text"
               class="input-field"
               required
               value={rules}
@@ -313,57 +298,57 @@ const Edit = (props) => {
           </div>
           <div class="input">
             <div class="edit-button">
-              <Button width={"10%"} onClick={onEditOpen}>
+              <Button
+                width={"10%"}
+                onClick={() => {
+                  setShow(true);
+                }}>
                 Edit
               </Button>
             </div>
             <label class="input-label">Group Link</label>
           </div>
-
           <div class="action">
             <button
               class="action-button"
               type="submit"
-              onClick={handleRenameTournament}
-            >
+              onClick={handleRenameTournament}>
               Done
             </button>
           </div>
         </form>
-
         <div class="card-info"></div>
       </div>
       <>
-        <Modal isOpen={isEditOpen} onClose={onEditClose}>
-          <ModalOverlay />
-          <ModalContent>
-            <ModalHeader
-              fontSize="35px"
-              fontFamily="Work sans"
-              d="flex"
-              justifyContent="center"
-            >
-              Update Group Link
-            </ModalHeader>
+        <Modal show={show} onHide={handleClose}>
+          <Modal.Header closeButton>
+            <Modal.Title>Edit Link</Modal.Title>
+          </Modal.Header>
 
-            <ModalCloseButton />
-            <ModalBody d="flex" flexDir="column" alignItems="center">
-              <FormControl d="flex">
-                <Select placeholder="Select option">
-                  <option value="option1">Discord</option>
-                  <option value="option2">Telegram</option>
-                </Select>
-                <Input placeholder="Link" mb={3} />
-              </FormControl>
-            </ModalBody>
-            <ModalFooter>
-              <Button colorScheme="teal" onClick={handleRenameGroupLink}>
-                Update
-              </Button>
-            </ModalFooter>
-          </ModalContent>
+          <Modal.Body>
+            <div style={{ display: "flex" }}>
+              <select className="form-select">
+                <option value="">Select option</option>
+                <option value="discord">Discord</option>
+                <option value="telegram">Telegram</option>
+              </select>
+              <input
+                type="text"
+                className="form-control"
+                placeholder="Link"
+                style={{ marginBottom: "3px", marginLeft: "10px" }}
+              />
+            </div>
+          </Modal.Body>
+
+          <Modal.Footer>
+            <Button variant="primary" onClick={handleRenameGroupLink}>
+              Update
+            </Button>
+          </Modal.Footer>
         </Modal>
       </>
+      <ToastContainer />
     </div>
   );
 };

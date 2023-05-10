@@ -6,7 +6,7 @@ const ChatContext = createContext();
 const ChatProvider = ({ children }) => {
   const [user, setUser] = useState();
   const [poster, setPoster] = useState([]);
-  const [chats, setChats] = useState([]);
+  const [details, setDetails] = useState([]);
   const history = useHistory();
 
   useEffect(() => {
@@ -16,8 +16,7 @@ const ChatProvider = ({ children }) => {
 
   return (
     <ChatContext.Provider
-      value={{ user, setUser, poster, setPoster, chats, setChats }}
-    >
+      value={{ user, setUser, poster, setPoster, details, setDetails }}>
       {children}
     </ChatContext.Provider>
   );

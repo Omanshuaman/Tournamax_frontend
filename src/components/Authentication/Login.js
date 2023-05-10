@@ -1,19 +1,7 @@
-import {
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  InputGroup,
-  InputRightElement,
-  Center,
-  Text,
-  useToast,
-  VStack,
-} from "@chakra-ui/react";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import axios from "axios";
-import { FcGoogle } from "react-icons/fc";
-
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useHistory } from "react-router-dom";
 import { ChatState } from "../../Context/ChatProvider";
 
@@ -23,7 +11,6 @@ const Login = ({ setonClick1 }) => {
   const [password, setPassword] = useState();
   const { setUser } = ChatState();
   const [loading, setLoading] = useState(false);
-  const toast = useToast();
   const history = useHistory();
   const axiosInstance = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
@@ -36,12 +23,15 @@ const Login = ({ setonClick1 }) => {
   const submitHandler = async () => {
     setLoading(true);
     if (!email || !password) {
-      toast({
-        title: "Please fill in all the fields.",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
+      toast.warn("Please fill in all the fields.", {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
       setLoading(false);
       return;
@@ -63,13 +53,15 @@ const Login = ({ setonClick1 }) => {
         config
       );
 
-      toast({
-        title: "Login Successful.",
-        // description: 'You have successfully logged in.',
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
+      toast.success("Login Successful.", {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
       const userInfo = localStorage.setItem("userInfo", JSON.stringify(data));
 
@@ -80,12 +72,15 @@ const Login = ({ setonClick1 }) => {
 
       document.location.reload();
     } catch (error) {
-      toast({
-        title: "Login Failed.",
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
+      toast.error("Login Failed.", {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
       setLoading(false);
     }
@@ -94,61 +89,40 @@ const Login = ({ setonClick1 }) => {
   const google = async () => {
     window.location.href = "https://tournamaxsports.com/api/auth/google";
   };
+
   return (
-    <VStack spacing={"5px"}>
-      <FormControl id="email" isRequired>
-        <FormLabel>Email</FormLabel>
-        <Input
+    <div>
+      <div>
+        <label htmlFor="email">Email</label>
+        <input
+          type="email"
+          id="email"
           value={email}
           placeholder="Enter your email..."
-          bg={"gray.50"}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
+          onChange={(e) => setEmail(e.target.value)}
         />
-      </FormControl>
-      <FormControl id="password" isRequired>
-        <FormLabel>Password</FormLabel>
-        <InputGroup>
-          <Input
+      </div>
+      <div>
+        <label htmlFor="password">Password</label>
+        <div>
+          <input
             type={show ? "text" : "password"}
-            placeholder="Enter your password..."
+            id="password"
             value={password}
-            bg={"gray.50"}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
+            placeholder="Enter your password..."
+            onChange={(e) => setPassword(e.target.value)}
           />
-          <InputRightElement width={"4.5rem"}>
-            <Button height={"1.75rem"} size="sm" onClick={handleClick}>
-              {show ? "Hide" : "Show"}
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-      </FormControl>
-      <Button
-        width={"100%"}
-        colorScheme="blue"
-        onClick={submitHandler}
-        style={{ marginTop: "1rem" }}
-        isLoading={loading}
-      >
-        Login
-      </Button>
-
-      <Button
-        w={"full"}
-        maxW={"md"}
-        colorScheme="blue"
-        style={{ marginTop: "1rem" }}
-        leftIcon={<FcGoogle />}
-        onClick={google}
-      >
-        <Center>
-          <h1>Sign in with Google</h1>
-        </Center>
-      </Button>
-    </VStack>
+          <button onClick={handleClick}>{show ? "Hide" : "Show"}</button>
+        </div>
+      </div>
+      <button onClick={submitHandler} disabled={loading}>
+        {loading ? "Loading..." : "Login"}
+      </button>
+      <button onClick={google} disabled={loading}>
+        {loading ? "Loading..." : "Sign in with Google"}
+      </button>
+      <ToastContainer />
+    </div>
   );
 };
 export default Login;

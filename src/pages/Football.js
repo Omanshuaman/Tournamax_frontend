@@ -1,19 +1,8 @@
-import "react-date-range/dist/styles.css"; // main style file
-import "react-date-range/dist/theme/default.css"; // theme css file
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import "./Football.css";
-import ReactMapGL, { Marker } from "react-map-gl";
-import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
 import { ChatState } from "../Context/ChatProvider";
-import { Room } from "@material-ui/icons";
-import { DateRangePicker } from "react-date-range";
 import { useHistory } from "react-router-dom";
-
-/* eslint-disable import/no-webpack-loader-syntax */
-// @ts-ignore
-mapboxgl.workerClass =
-  require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
 
 function FootballOrganize() {
   const [tournamentName, setTournamentName] = useState(null);
@@ -153,7 +142,7 @@ function FootballOrganize() {
             />
             <label class="input-label">No. of Players in a team</label>
           </div>
-          <div class="input">
+          {/* <div class="input">
             <ReactMapGL
               ref={mapRef}
               mapboxAccessToken={process.env.REACT_APP_MAPBOX}
@@ -192,18 +181,18 @@ function FootballOrganize() {
               <midium>{latitude + ", "}</midium>
               <midium>{longitude}</midium>
             </p>
-          </div>
+          </div> */}
           <div class="input">
             <input type="text" class="input-field" required value={address} />
             <label class="input-label">Address</label>
           </div>
-          <div class="input">
+          {/* <div class="input">
             <DateRangePicker
               ranges={[selectionRange]}
               minDate={new Date()}
               onChange={handleSelect}
             />
-          </div>
+          </div> */}
           <div class="input">
             <input
               type="time"

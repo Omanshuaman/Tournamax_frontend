@@ -1,53 +1,53 @@
 import React from "react";
 import { useHistory } from "react-router-dom";
-import { useEffect, useState, useRef } from "react";
+import { useState, useEffect } from "react";
 import axios from "axios";
-import { ChatState } from "../Context/ChatProvider";
-function Image() {
-  const { setUser } = ChatState();
-  const history = useHistory();
-  const imageUrl =
-    "https://images.pexels.com/photos/15439947/pexels-photo-15439947.jpeg";
 
-  const openImage = () => {
-    console.log("fff");
+function Image() {
+  const history = useHistory();
+  const [posters, setPosters] = useState([]);
+
+  const openImage = (poster) => {
     history.push({
       pathname: "/Poster",
-      state: { image: imageUrl },
+      state: { posters: poster },
     });
   };
-  useEffect(() => {
-    function getCookie(name) {
-      var value = "; " + document.cookie;
-      var parts = value.split("; " + name + "=");
-      if (parts.length == 2) return parts.pop().split(";").shift();
-    }
+  const axiosInstance = axios.create({
+    baseURL: process.env.REACT_APP_API_URL,
+  });
+  const handleImageClick = (poster) => {
+    openImage(poster);
+  };
 
-    let cookieValue = getCookie("token");
-    console.log(cookieValue);
+  useEffect(() => {
+    axiosInstance
+      .get("/poster")
+      .then((response) => {
+        setPosters(response.data);
+      })
+      .catch((error) => {
+        console.log(error);
+      });
   }, []);
+
   return (
-    <div class="container">
-      <div class="heading">
+    <div className="container">
+      <div className="heading">
         <h3>
           Photo <span>Gallery</span>
         </h3>
       </div>
-      <div class="box">
-        <div class="dream">
-          <img
-            src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"
-            onClick={() => openImage()}
-          />
-          <img src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg" />
-        </div>
-        <div class="dream">
-          <img
-            src="https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&w=600"
-            onClick={() => openImage()}
-          />
-          <img src="https://images.pexels.com/photos/674010/pexels-photo-674010.jpeg?auto=compress&cs=tinysrgb&w=600" />
-        </div>
+      <div className="box">
+        {posters.map((poster) => (
+          <li key={poster._id}>
+            <img
+              src={poster.pics}
+              alt={poster.input}
+              onClick={() => handleImageClick(poster)}
+            />
+          </li>
+        ))}
       </div>
     </div>
   );

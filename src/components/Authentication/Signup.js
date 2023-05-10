@@ -1,16 +1,8 @@
-import {
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  InputGroup,
-  InputRightElement,
-  VStack,
-  useToast,
-} from "@chakra-ui/react";
 import React, { useState } from "react";
 import axios from "axios";
 import { useHistory } from "react-router-dom";
+import { ToastContainer, toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 const Signup = () => {
   const [show, setShow] = useState(false);
   const [name, setName] = useState();
@@ -18,7 +10,6 @@ const Signup = () => {
   const [password, setPassword] = useState();
   const [confirmpassword, setConfirmpassword] = useState();
   const [loading, setLoading] = useState(false);
-  const toast = useToast();
   const history = useHistory();
   const axiosInstance = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
@@ -31,25 +22,29 @@ const Signup = () => {
   const submitHandler = async () => {
     setLoading(true);
     if (!name || !email || !password || !confirmpassword) {
-      toast({
-        title: "Please fill all the fields.",
-        // description: "We've created your account for you.",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
+      toast.warn("Please fill in all the fields.", {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
       setLoading(false);
       return;
     }
     if (password !== confirmpassword) {
-      toast({
-        title: "Passwords do not match.",
-        // description: "We've created your account for you.",
-        status: "warning",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
+      toast.warn("Passwords do not match.", {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
       return;
     }
@@ -65,98 +60,94 @@ const Signup = () => {
         { name, email, password },
         config
       );
-      toast({
-        title: "Successfully created account.",
-        status: "success",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
+
+      toast.success("Successfully created account.", {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
       localStorage.setItem("userInfo", JSON.stringify(data));
       setLoading(false);
       history.push("/chats");
     } catch (error) {
-      toast({
-        title: "Error creating account.",
-        description: error.response.data.message,
-        status: "error",
-        duration: 5000,
-        isClosable: true,
-        position: "bottom",
+      toast.error("Error creating account.", {
+        position: "bottom-center",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+        theme: "light",
       });
       setLoading(false);
     }
   };
 
   return (
-    <VStack spacing={"5px"}>
-      <FormControl id="first-name" isRequired>
-        <FormLabel>Name</FormLabel>
-        <Input
+    <div>
+      <div>
+        <label htmlFor="name">Name</label>
+        <input
+          type="text"
           placeholder="Enter your name..."
-          bg={"gray.50"}
-          onChange={(e) => {
-            setName(e.target.value);
-          }}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
         />
-      </FormControl>
-      <FormControl id="email" isRequired>
-        <FormLabel>Email</FormLabel>
-        <Input
+      </div>
+      <div>
+        <label htmlFor="email">Email</label>
+        <input
+          type="email"
           placeholder="Enter your email..."
-          bg={"gray.50"}
-          onChange={(e) => {
-            setEmail(e.target.value);
-          }}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
         />
-      </FormControl>
-      <FormControl id="password" isRequired>
-        <FormLabel>Password</FormLabel>
-        <InputGroup>
-          <Input
+      </div>
+      <div>
+        <label htmlFor="password">Password</label>
+        <div>
+          <input
             type={show ? "text" : "password"}
             placeholder="Enter your password..."
-            bg={"gray.50"}
-            onChange={(e) => {
-              setPassword(e.target.value);
-            }}
+            value={password}
+            onChange={(e) => setPassword(e.target.value)}
+            required
           />
-          <InputRightElement width={"4.5rem"}>
-            <Button height={"1.75rem"} size="sm" onClick={handleClick}>
-              {show ? "Hide" : "Show"}
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-      </FormControl>
-      <FormControl id="password" isRequired>
-        <FormLabel>Confirm Password</FormLabel>
-        <InputGroup>
-          <Input
+          <button type="button" onClick={handleClick}>
+            {show ? "Hide" : "Show"}
+          </button>
+        </div>
+      </div>
+      <div>
+        <label htmlFor="confirmpassword">Confirm Password</label>
+        <div>
+          <input
             type={show ? "text" : "password"}
             placeholder="Confirm your password..."
-            bg={"gray.50"}
-            onChange={(e) => {
-              setConfirmpassword(e.target.value);
-            }}
+            value={confirmpassword}
+            onChange={(e) => setConfirmpassword(e.target.value)}
+            required
           />
-          <InputRightElement width={"4.5rem"}>
-            <Button height={"1.75rem"} size="sm" onClick={handleClick}>
-              {show ? "Hide" : "Show"}
-            </Button>
-          </InputRightElement>
-        </InputGroup>
-      </FormControl>
+          <button type="button" onClick={handleClick}>
+            {show ? "Hide" : "Show"}
+          </button>
+        </div>
+      </div>
 
-      <Button
-        width={"100%"}
-        colorScheme="blue"
-        onClick={submitHandler}
-        style={{ marginTop: "1rem" }}
-        isLoading={loading}
-      >
-        Sign Up
-      </Button>
-    </VStack>
+      <button type="submit" onClick={submitHandler} disabled={loading}>
+        {loading ? "Loading..." : "Sign Up"}
+      </button>
+      <ToastContainer />
+    </div>
   );
 };
+
 export default Signup;

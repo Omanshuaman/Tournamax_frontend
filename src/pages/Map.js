@@ -1,89 +1,36 @@
-import "mapbox-gl/dist/mapbox-gl.css";
 import "swiper/swiper.min.css";
 import Homepage from "./HomePage";
-import ReactMapGL, { Marker, Popup } from "react-map-gl";
 import { useEffect, useState, useRef } from "react";
-import { Room, Star } from "@material-ui/icons";
-import ProfileModal from "../components/miscellaneous/ProfileModal";
 import axios from "axios";
-import Header from "../components/Header";
 import * as React from "react";
 import Cookies from "universal-cookie";
 import ReactGA from "react-ga";
-import {
-  Button,
-  FormControl,
-  FormLabel,
-  Input,
-  InputGroup,
-  InputRightElement,
-  VStack,
-  useToast,
-  HStack,
-} from "@chakra-ui/react";
-import { Pagination } from "swiper";
-import {
-  Drawer,
-  DrawerBody,
-  DrawerFooter,
-  Image,
-  DrawerHeader,
-  DrawerOverlay,
-  DrawerContent,
-  DrawerCloseButton,
-} from "@chakra-ui/react";
-// import required modules
-import {
-  Modal,
-  ModalOverlay,
-  ModalContent,
-  ModalBody,
-  ModalCloseButton,
-  useDisclosure,
-  ModalHeader,
-  ModalFooter,
-  Stack,
-  Box,
-  Textarea,
-  InputLeftAddon,
-  firstField,
-  InputRightAddon,
-  List,
-  Select,
-} from "@chakra-ui/react";
-import { ChevronDownIcon } from "@chakra-ui/icons";
-import {
-  Menu,
-  MenuButton,
-  MenuList,
-  Avatar,
-  MenuItem,
-  MenuDivider,
-} from "@chakra-ui/react";
+
+import "leaflet/dist/leaflet.css";
+
+// import component 👇
+import Offcanvas from "react-bootstrap/Offcanvas";
+import "bootstrap/dist/css/bootstrap.min.css";
+import { Modal, Button } from "react-bootstrap";
+
 import { ChatState } from "../Context/ChatProvider";
 import { useHistory } from "react-router-dom";
 import { Swiper, SwiperSlide } from "swiper/react";
 import jwt_decode from "jwt-decode";
-
+import osm from "./osm-providers";
+import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
+import Modal1 from "react-bootstrap/Modal";
 // Import Swiper styles
 import "swiper/css";
 import "swiper/css/navigation";
-
-import mapboxgl from "mapbox-gl"; // This is a dependency of react-map-gl even if you didn't explicitly install it
-
-/* eslint-disable import/no-webpack-loader-syntax */
-// @ts-ignore
-mapboxgl.workerClass =
-  require("worker-loader!mapbox-gl/dist/mapbox-gl-csp-worker").default;
-
 function Map() {
   const myStorage = window.localStorage;
   const mapRef = React.useRef();
   const ref = useRef(null);
   const { user, setUser } = ChatState();
-  const [show, setShow] = useState(false);
   const [password, setPassword] = useState();
   const [userId, setUserId] = useState([]);
+  const [showMapClickListener, setShowMapClickListener] = useState(false);
   const [selectedOption, setSelectedOption] = useState(null);
   const [tournamentname, setTournamentName] = useState(null);
   const [title, setTitle] = useState(null);
@@ -101,7 +48,7 @@ function Map() {
   const [prizeMoney, setPrizeMoney] = useState(null);
   const [createdBy, setCreatedBy] = useState(null);
   const [sports, setSports] = useState(null);
-
+  const [isOpen, setIsOpen] = React.useState(false);
   const [currentCardId, setCurrentCard] = useState(null);
   const [currentCardDesc, setCurrentCardDesc] = useState(null);
   const [currentCardUsername, setCurrentCardUsername] = useState(null);
@@ -112,51 +59,42 @@ function Map() {
   const [currentSlideId, setCurrentSlideId] = useState([]);
   const [longitude, setLongitude] = useState(null);
   const [latitude, setLatitude] = useState(null);
-  const toast = useToast();
+  const [center, setCenter] = useState([51.505, -0.09]); // default center
+  const [show, setShow] = useState(false);
+  const [show1, setShow1] = useState(false);
+  const [selectedMarker, setSelectedMarker] = useState(null);
+  const [hasClickedMarker, setHasClickedMarker] = useState(false);
+  const [show2, setShow2] = useState(false);
+  const [show3, setShow3] = useState(false);
+  const [show4, setShow4] = useState(false);
+  const handleClose4 = () => setShow4(false);
+  const handleClose3 = () => setShow3(false);
+  const handleClose2 = () => setShow2(false);
+  const handleShow2 = () => setShow2(true);
+  const handleClose = () => setShow(false);
+
   const axiosInstance = axios.create({
     baseURL: process.env.REACT_APP_API_URL,
   });
 
   const history = useHistory();
-  const handleClick = () => {
-    setShow(!show);
-  };
-  const [viewport, setViewport] = useState({
-    latitude: 27.173891,
-    longitude: 78.042068,
-    zoom: 4,
-  });
 
-  const {
-    isOpen: isLoginOpen,
-    onOpen: onLoginOpen,
-    onClose: onLoginClose,
-  } = useDisclosure();
-
-  const {
-    isOpen: isDrawerOpen,
-    onOpen: onDrawerOpen,
-    onClose: onDrawerClose,
-  } = useDisclosure();
-  const {
-    isOpen: isLeftDrawerOpen,
-    onOpen: onLeftDrawerOpen,
-    onClose: onLeftDrawerClose,
-  } = useDisclosure();
-  const btnRef = React.useRef();
-  const handleMarkerClick = (id, lat, long, child) => {
+  useEffect(() => {
+    console.log(longitude);
+    console.log(latitude);
+    const zoom = mapRef.current ? mapRef.current.getZoom() : ZOOM_LEVEL;
+    mapRef.current?.flyTo([latitude, longitude], zoom, {
+      duration: 0.4,
+    });
+  }, [longitude, latitude, mapRef]);
+  function handleMarkerClick(id, latlng, child) {
     setCurrentPlaceId(id);
-
     console.log(child);
     if (ref.current !== null && ref.current.swiper !== null) {
       ref.current.swiper.slideTo(child);
     }
-
-    mapRef.current?.flyTo({
-      center: [long, lat],
-      duration: 500,
-    });
-  };
+  }
+  const ZOOM_LEVEL = 9;
 
   const logoutHandler = () => {
     setUser(null);
@@ -191,11 +129,10 @@ function Map() {
     setPrizeMoney(prizeMoney);
     setSports(sports);
     setPicture(pics);
-    onDrawerOpen();
-    console.log(pics + "gg");
+    setShow(true);
   };
-  const myTournament = () => {
-    onLeftDrawerOpen();
+  const openNav2 = () => {
+    setShow3(true);
   };
   const OrganizeTournament = () => {
     history.push("/mytournament");
@@ -215,12 +152,16 @@ function Map() {
     ReactGA.pageview("https://tournamaxsports.com/");
   }, []);
 
-  useEffect(() => {
-    mapRef.current?.flyTo({
-      center: [longitude, latitude],
-      duration: 500,
-    });
-  }, [longitude, latitude]);
+  // useEffect(() => {
+  //   if (mapRef.current) {
+  //     const map = mapRef.current.leafletElement;
+  //     map.whenReady(() => {
+  //       map.flyTo([latitude, longitude], 4);
+  //     });
+  //   }
+  // }, [longitude, latitude]);
+  const [map, setMap] = useState(null);
+  const [position, setPosition] = useState(center);
 
   useEffect(() => {
     const keys = Object.keys(pins).slice(0, 15);
@@ -249,190 +190,187 @@ function Map() {
   useEffect(() => {
     submitHandler();
   }, []);
-
   return (
-    <div class="whole">
-      <div class="header">
+    <>
+      <div style={{ zIndex: 999, position: "absolute", right: 0 }}>
         {user ? (
-          <Menu>
-            <MenuButton as={Button} rightIcon={<ChevronDownIcon />}>
-              <Avatar
-                size={"sm"}
-                cursor="pointer"
-                name={user.name}
-                src={user.pic}
-              />
-            </MenuButton>
-            <MenuList>
-              <MenuItem onClick={() => OrganizeTournament()}>
-                My Tournament
-              </MenuItem>
-              <ProfileModal user={user}>
-                <MenuItem>My Profile</MenuItem>
-              </ProfileModal>
-              <MenuDivider />
-              <MenuItem onClick={logoutHandler}>Logout</MenuItem>
-            </MenuList>
-          </Menu>
+          <div>
+            <button onClick={() => setIsOpen(!isOpen)}>
+              <img src={user.pic} alt={user.name} />
+            </button>
+            {isOpen && (
+              <div>
+                <button onClick={() => OrganizeTournament()}>
+                  My Tournament
+                </button>
+
+                <button onClick={logoutHandler}>Logout</button>
+              </div>
+            )}
+          </div>
         ) : (
           <div>
-            <button class="log" onClick={onLoginOpen}>
+            <button
+              class="log"
+              onClick={() => {
+                setShow4(true);
+              }}>
               Login
             </button>
           </div>
         )}
       </div>
-      <ReactMapGL
-        ref={mapRef}
-        mapboxAccessToken={process.env.REACT_APP_MAPBOX}
-        style={{
-          width: "100vw",
-          height: "100vh",
-          position: "relative",
-        }}
-        {...viewport}
-        onMove={(evt) => setViewport(evt.viewport)}
-        mapStyle="mapbox://styles/safak/cknndpyfq268f17p53nmpwira"
-      >
-        <>
-          <Swiper
-            ref={ref}
-            slidesPerView={1.2}
-            spaceBetween={20}
-            breakpoints={{
-              // when window width is >= 640px
-              640: {
-                width: 640,
-                slidesPerView: 1.3,
-                spaceBetween: 35,
-              },
-            }}
-            centeredSlides={true}
-            className="mySwiper bottom-element"
-          >
-            {markers.map((p, index) => (
-              <SwiperSlide
-                key={index}
-                onClick={() =>
-                  openNav3(
-                    p.tournamentName,
-                    p._id,
-                    p.organizerName,
-                    p.noOfTeam,
-                    p.address,
-                    p.startMatchDate,
-                    p.endMatchDate,
-                    p.time,
-                    p.entryFee,
-                    p.prizeMoney,
-                    p.createdBy,
-                    p.sports,
-                    p.pic
-                  )
-                }
-              >
-                {({ isActive }) => (
+      <div style={{ zIndex: 999, position: "absolute", left: 0 }}>
+        <div>
+          <button class="log" onClick={() => openNav2()}>
+            Login
+          </button>
+        </div>
+      </div>
+      <div style={{ position: "relative" }}>
+        <MapContainer
+          center={center}
+          zoom={ZOOM_LEVEL}
+          ref={mapRef}
+          zoomControl={false}
+          whenCreated={setMap}>
+          <TileLayer
+            url={osm.maptiler.url}
+            attribution={osm.maptiler.attribution}
+          />
+          {markers.map((marker, index) => (
+            <Marker
+              key={index}
+              position={[marker.lat, marker.long]}
+              eventHandlers={{
+                click: () =>
+                  handleMarkerClick(
+                    marker._id,
+                    [marker.lat, marker.long],
+                    index
+                  ),
+              }}>
+              <Popup>{marker.name}</Popup>
+            </Marker>
+          ))}
+        </MapContainer>
+        <div
+          style={{
+            position: "absolute",
+            top: "80%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "40%",
+            fontSize: "20px",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            zIndex: 999,
+          }}>
+          <>
+            <Swiper
+              ref={ref}
+              slidesPerView={1.2}
+              spaceBetween={20}
+              breakpoints={{
+                // when window width is >= 640px
+                640: {
+                  width: 640,
+                  slidesPerView: 1.3,
+                  spaceBetween: 35,
+                },
+              }}
+              centeredSlides={true}
+              className="mySwiper bottom-element">
+              {markers.map((p, index) => (
+                <SwiperSlide
+                  key={index}
+                  onClick={() =>
+                    openNav3(
+                      p.tournamentName,
+                      p._id,
+                      p.organizerName,
+                      p.noOfTeam,
+                      p.address,
+                      p.startMatchDate,
+                      p.endMatchDate,
+                      p.time,
+                      p.entryFee,
+                      p.prizeMoney,
+                      p.createdBy,
+                      p.sports,
+                      p.pic
+                    )
+                  }>
+                  {({ isActive }) => (
+                    <>
+                      <img align="left" src={p.pic} />
+                      <div class="grid_swiper">
+                        <div class="tournamentname">{p.tournamentName}</div>
+                        <div class="sportsname">{p.sports}</div>
+                        <div class="vlcard2">Entry fee:{p.entryFee}</div>
+                        {isActive ? (
+                          <>
+                            {setLongitude(p.long)}
+                            {setLatitude(p.lat)}
+                          </>
+                        ) : (
+                          ""
+                        )}
+                      </div>
+                    </>
+                  )}
+                </SwiperSlide>
+              ))}
+              <>
+                {user ? (
                   <>
-                    <img
-                      align="left"
-                      src="https://marketplace.canva.com/EADao61dcMM/1/0/1131w/canva-black-simple-sports-event-poster-GoiXbRR4fcs.jpg"
-                    />
-                    <div class="grid_swiper">
-                      <div class="tournamentname">{p.tournamentName}</div>
-                      <div class="sportsname">{p.sports}</div>
-                      <div class="vlcard2">Entry fee:{p.entryFee}</div>
-
-                      {isActive ? (
-                        <>
-                          {setLongitude(p.long)}
-                          {setLatitude(p.lat)}
-                        </>
-                      ) : (
-                        ""
-                      )}
+                    <div class="organize">
+                      <button
+                        class="organize_button"
+                        //     onClick={openNav}
+                        onClick={() => history.push("/organize")}>
+                        ORGANIZE YOUR TOURNAMENT
+                      </button>
                     </div>
                   </>
-                )}
-              </SwiperSlide>
-            ))}
-            <>
-              {user ? (
-                <>
+                ) : (
                   <div class="organize">
                     <button
                       class="organize_button"
                       //     onClick={openNav}
-                      onClick={() => history.push("/organize")}
-                    >
+                      onClick={() => {
+                        setShow4(true);
+                      }}>
                       ORGANIZE YOUR TOURNAMENT
                     </button>
                   </div>
-                </>
-              ) : (
-                <div class="organize">
-                  <button
-                    class="organize_button"
-                    //     onClick={openNav}
-                    onClick={onLoginOpen}
-                  >
-                    ORGANIZE YOUR TOURNAMENT
-                  </button>
-                </div>
-              )}
-              <>
-                <Modal isOpen={isLoginOpen} onClose={onLoginClose}>
-                  <ModalOverlay />
-                  <ModalContent>
-                    <ModalCloseButton />
-                    <ModalBody>
-                      <Homepage setonClick={onLoginClose} />
-                    </ModalBody>
-                  </ModalContent>
-                </Modal>
-              </>
-            </>
-          </Swiper>
-        </>
-        {markers.map((p, index) => (
-          <>
-            <Marker
-              key={index}
-              id="marker"
-              longitude={p.long}
-              latitude={p.lat}
-              offsetLeft={-20}
-              offsetTop={-10}
-            >
-              <Room
-                style={{
-                  fontSize: 20,
-                  color: "slateblue",
-                  cursor: "pointer",
-                }}
-                onClick={() => handleMarkerClick(p._id, p.lat, p.long, index)}
-              />
-            </Marker>
-          </>
-        ))}
-        <>
-          <Drawer
-            isOpen={isDrawerOpen}
-            placement="right"
-            onClose={onDrawerClose}
-            finalFocusRef={btnRef}
-            size="sm"
-          >
-            <DrawerOverlay />
-            <DrawerContent>
-              <DrawerCloseButton />
-              <DrawerHeader>{currentSlide}</DrawerHeader>
-              <DrawerBody>
-                <Stack spacing="26px">
-                  <Box>
-                    <FormLabel>{tournamentname}</FormLabel>
-                    <h1>{currentCardDesc}</h1>
-                  </Box>
+                )}
+                <>
+                  <Modal show={show4} onHide={handleClose4}>
+                    <Modal.Header closeButton></Modal.Header>
 
+                    <Modal.Body>
+                      <Homepage setonClick={handleClose4} />
+                    </Modal.Body>
+                  </Modal>
+                </>
+              </>
+            </Swiper>
+          </>
+          <div
+            style={{
+              zIndex: 1000,
+            }}>
+            <Offcanvas show={show} onHide={handleClose} placement="end">
+              <Offcanvas.Header closeButton>
+                <Offcanvas.Title>{tournamentname}</Offcanvas.Title>
+              </Offcanvas.Header>
+              <Offcanvas.Body>
+                <div style={{ display: "flex", flexDirection: "column" }}>
+                  <div>
+                    <h1>{currentCardDesc}</h1>
+                  </div>
                   {picture !== "" && (
                     <>
                       <img
@@ -443,52 +381,58 @@ function Map() {
                       />
                     </>
                   )}
-
-                  <Box>
-                    <FormLabel>Organizer</FormLabel>
+                  <div>
+                    <h1>Organizer</h1>
                     <h1>{organizerName}</h1>
-                  </Box>
-                  <Box>
-                    <FormLabel>No. of Team</FormLabel>
+                  </div>
+                  <div>
+                    <h1>No. of Team</h1>
                     <h1>{noofTeam}</h1>
-                  </Box>
-                  <Box>
-                    <FormLabel>Address</FormLabel>
+                  </div>
+                  <div>
+                    <h1>Address</h1>
                     <h1>{address}</h1>
-                  </Box>
-                  <Box>
-                    <FormLabel>Date(from)</FormLabel>
-                    <h1>{startMatchDate}</h1>
-                  </Box>
-                  <Box>
-                    <FormLabel>Date(to)</FormLabel>
-                    <h1>{endMatchDate}</h1>
-                  </Box>
-                  <Box>
-                    <FormLabel>Time</FormLabel>
+                  </div>
+                  <div>
+                    <h1>Date(from)</h1>
+                    {endMatchDate ? (
+                      <h1>{startMatchDate.slice(0, 10)}</h1>
+                    ) : (
+                      <h1>N/A</h1>
+                    )}
+                  </div>
+                  <div>
+                    <h1>Date(to)</h1>
+                    {endMatchDate ? (
+                      <h1>{endMatchDate.slice(0, 10)}</h1>
+                    ) : (
+                      <h1>N/A</h1>
+                    )}
+                  </div>
+                  <div>
+                    <h1>Time</h1>
                     <h1>{time}</h1>
-                  </Box>
-                  <Box>
-                    <FormLabel>Entry Fee</FormLabel>
+                  </div>
+                  <div>
+                    <h1>Entry Fee</h1>
                     <h1>{entryFee}</h1>
-                  </Box>
-                  <Box>
-                    <FormLabel>Prize Money</FormLabel>
+                  </div>
+                  <div>
+                    <h1>Prize Money</h1>
                     <h1>{prizeMoney}</h1>
-                  </Box>
-                  <Box>
-                    <FormLabel>Group Link</FormLabel>
-                    <div class="edit-button">
-                      <h1>{prizeMoney}</h1>
-                      <Button width={"10%"} onClick={JoinGroup}>
-                        Join
-                      </Button>
-                      {/* <Button width={"10%"} onClick={onEditOpen}>
-                        Join
-                      </Button> */}
+                  </div>
+                  {prizeMoney && (
+                    <div>
+                      <h1>Group Link</h1>
+                      <div className="edit-button">
+                        <h1>{prizeMoney}</h1>
+                        <button width={"10%"} onClick={JoinGroup}>
+                          Join
+                        </button>
+                      </div>
                     </div>
-                  </Box>
-                  <Button
+                  )}
+                  <button
                     width={"100%"}
                     colorScheme="blue"
                     style={{ marginTop: "1rem" }}
@@ -497,17 +441,35 @@ function Map() {
                         pathname: "/participate",
                         state: { props: currentSlideId },
                       })
-                    }
-                  >
+                    }>
                     Register
-                  </Button>
-                </Stack>
-              </DrawerBody>
-            </DrawerContent>
-          </Drawer>
-        </>
-      </ReactMapGL>
-    </div>
+                  </button>
+                </div>
+              </Offcanvas.Body>
+            </Offcanvas>
+          </div>
+          <div
+            style={{
+              zIndex: 1000,
+            }}>
+            <Offcanvas show={show3} onHide={handleClose3} placement="end">
+              <Offcanvas.Header closeButton>
+                <Offcanvas.Title>tournamentname</Offcanvas.Title>
+              </Offcanvas.Header>
+              <Offcanvas.Body>
+                <button onClick={handleShow2}>Sign in</button>
+              </Offcanvas.Body>
+            </Offcanvas>
+          </div>
+          <>
+            <Modal1 show={show2} onHide={handleClose2}>
+              <Modal1.Header closeButton></Modal1.Header>
+              <Homepage setonClick={handleClose2} />
+            </Modal1>
+          </>
+        </div>
+      </div>
+    </>
   );
 }
 export default Map;

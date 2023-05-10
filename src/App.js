@@ -10,7 +10,7 @@ import MyTournament from "./pages/MyTournament";
 import Participate from "./pages/Participate";
 import Edit from "./pages/Edit";
 import ParticipateRecord from "./pages/ParticipateRecord";
-
+import Enterposterdetail from "./pages/Enterposter";
 function App() {
   return (
     <div className="App">
@@ -24,6 +24,7 @@ function App() {
       <Route path="/participate" component={Participate} />
       <Route path="/edit" component={Edit} />
       <Route path="/participaterecord" component={ParticipateRecord} />
+      <Route path="/enterposter" component={Enterposterdetail} />
     </div>
   );
 }
